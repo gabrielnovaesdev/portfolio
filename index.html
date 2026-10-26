@@ -5,15 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gabriel Novaes — Portfolio</title>
   <meta name="description" content="Portfólio de Gabriel Novaes — Developer & AI." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111111'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Impact,sans-serif' font-size='20' fill='%232b2bff'%3EG%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=League+Gothic:wdth@75..100&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Instrument+Serif:ital@1&family=Inter:wght@400;500&family=League+Gothic:wdth@75..100&display=swap" rel="stylesheet" />
   <link rel="preload" as="image" href="assets/gabriel.webp" />
   <link rel="preload" as="image" href="assets/gabriel-head.webp" />
   <link rel="stylesheet" href="styles.css" />
+  <script>document.documentElement.classList.add("js", "is-loading");</script>
 </head>
 <body>
-  <header class="hero" id="topo">
+  <!-- Entrada: carregamento, o texto vira um recorte transparente e a câmera entra por dentro dele -->
+  <div class="loader" aria-hidden="true">
+    <svg class="loader__cut" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="loader-clip" clipPathUnits="userSpaceOnUse"><rect class="loader__clip-rect" /></clipPath>
+        <mask id="loader-mask" maskUnits="userSpaceOnUse">
+          <rect class="loader__mask-bg" fill="#fff" />
+          <g class="loader__zoom"><g clip-path="url(#loader-clip)"><g class="loader__rise"><text class="loader__word" fill="#000">GABRIEL NOVAES</text></g></g></g>
+        </mask>
+      </defs>
+      <rect class="loader__bg" fill="#111111" mask="url(#loader-mask)" />
+      <g class="loader__zoom"><g clip-path="url(#loader-clip)"><g class="loader__rise"><text class="loader__word loader__fill" fill="#f2f1ee">GABRIEL NOVAES</text></g></g></g>
+    </svg>
+    <div class="loader__ui">
+      <div class="eyebrow"><span>Gabriel Novaes</span><span>Portfolio © 2026</span></div>
+      <div class="eyebrow"><span class="loader__count">000</span><span>Developer &amp; AI</span></div>
+      <div class="loader__bar"><i></i></div>
+    </div>
+  </div>
+
+  <header class="hero-wrap" id="topo">
+  <div class="hero">
     <!-- Layers, back to front: photo → solid word → head → word outline -->
     <div class="stage" aria-hidden="true">
       <div class="photo">
@@ -57,14 +80,89 @@
     </a>
     <p class="label label--bl">Gabriel Novaes</p>
     <a class="label label--br" href="https://github.com/gabrielnovaesdev" target="_blank" rel="noopener">github.com/gabrielnovaesdev</a>
+  </div>
+  <div class="hero-wrap__shade" aria-hidden="true"></div>
   </header>
 
-  <main>
-    <section class="projects" id="projetos" aria-label="Projetos">
-      <!-- Projetos entram aqui na próxima etapa -->
+  <main class="main">
+    <!-- Palco fixo: no desktop os painéis trocam por cima uns dos outros conforme o scroll -->
+    <div class="stack" id="projetos">
+      <section class="panel intro" aria-labelledby="intro-title">
+        <div class="panel__inner">
+          <div class="eyebrow">
+            <span>(01)</span>
+            <span>Projetos selecionados</span>
+          </div>
+          <h2 class="intro__title wide" id="intro-title">
+            <span class="line"><span>Projetos que</span></span>
+            <span class="line"><span><em>construí</em> do zero,</span></span>
+            <span class="line"><span>— todos no ar.</span></span>
+          </h2>
+          <p class="intro__text" data-fade>Do 3D no navegador ao app no celular. Role a página para ver cada projeto funcionando de verdade.</p>
+        </div>
+        <div class="panel__shade"></div>
+      </section>
+    </div>
+
+    <!-- Um capítulo por projeto: main.js preenche a partir de projects.js -->
+    <template id="chapter-tpl">
+      <section class="panel chapter">
+        <div class="panel__inner">
+          <div class="eyebrow chapter__top">
+            <span><b data-num></b>&nbsp;&nbsp;<span data-kind></span></span>
+            <span data-count></span>
+          </div>
+          <div class="chapter__media" data-media></div>
+          <div class="chapter__info">
+            <h3 class="chapter__name"><span class="line"><span data-name></span></span></h3>
+            <p class="chapter__desc" data-fade data-desc></p>
+            <ul class="chapter__stack" data-fade data-stack></ul>
+            <div class="chapter__links" data-fade data-links></div>
+          </div>
+        </div>
+        <div class="panel__shade"></div>
+      </section>
+    </template>
+
+    <!-- Cenário: vídeo P&B com retícula, título por cima e o índice dos projetos -->
+    <section class="scene" aria-labelledby="scene-title">
+      <div class="scene__media" aria-hidden="true">
+        <video class="scene__video" src="assets/reel-720.mp4" poster="assets/reel.jpg" muted loop playsinline preload="metadata"></video>
+        <div class="scene__grid"></div>
+      </div>
+      <div class="eyebrow scene__top">
+        <span>(02)</span>
+        <span>Índice</span>
+      </div>
+      <h2 class="scene__title wide" id="scene-title">
+        <span class="line"><span><em>Do 3D</em> ao app,</span></span>
+        <span class="line"><span>cada projeto</span></span>
+        <span class="line"><span>— no ar.</span></span>
+      </h2>
+      <div class="scene__cols">
+        <p class="scene__label" data-flick>06 projetos</p>
+        <p class="scene__label" data-flick>Developer &amp; AI</p>
+        <ol class="scene__list" data-index></ol>
+      </div>
     </section>
+
+    <footer class="footer">
+      <h2 class="footer__title wide">
+        <span class="line"><span>Vamos <em>construir</em></span></span>
+        <span class="line"><span>algo juntos?</span></span>
+      </h2>
+      <div class="footer__bar">
+        <span>Gabriel Novaes — Developer &amp; AI</span>
+        <a href="https://github.com/gabrielnovaesdev" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="#topo" data-scroll-top>Voltar ao topo ↑</a>
+      </div>
+    </footer>
   </main>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="projects.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

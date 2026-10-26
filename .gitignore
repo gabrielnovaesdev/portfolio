@@ -5,3 +5,6 @@
 node_modules/
 .DS_Store
 Thumbs.db
+
+# Material de referência para gerar vídeos (não vai para o site)
+referencias-flow/
