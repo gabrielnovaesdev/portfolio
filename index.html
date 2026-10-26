@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gabriel Novaes — Portfolio</title>
+  <meta name="description" content="Portfólio de Gabriel Novaes — Developer & AI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=League+Gothic:wdth@75..100&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="assets/gabriel.webp" />
+  <link rel="preload" as="image" href="assets/gabriel-head.webp" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero" id="topo">
+    <!-- Layers, back to front: photo → solid word → head → word outline -->
+    <div class="stage" aria-hidden="true">
+      <div class="photo">
+        <img src="assets/gabriel.webp" alt="" width="1254" height="1254" decoding="async" fetchpriority="high" />
+      </div>
+      <div class="word word--solid">
+        <span class="l"><span>P</span></span>
+        <span class="l"><span>O</span></span>
+        <span class="l"><span>R</span></span>
+        <span class="l"><span>T</span></span>
+        <span class="l"><span>F</span></span>
+        <span class="l"><span>O</span></span>
+        <span class="l"><span>L</span></span>
+        <span class="l"><span>I</span></span>
+        <span class="l"><span>O</span></span>
+      </div>
+      <div class="photo photo--head">
+        <img src="assets/gabriel-head.webp" alt="" width="1254" height="1254" decoding="async" />
+      </div>
+      <div class="word word--outline">
+        <span class="l"><span>P</span></span>
+        <span class="l"><span>O</span></span>
+        <span class="l"><span>R</span></span>
+        <span class="l"><span>T</span></span>
+        <span class="l"><span>F</span></span>
+        <span class="l"><span>O</span></span>
+        <span class="l"><span>L</span></span>
+        <span class="l"><span>I</span></span>
+        <span class="l"><span>O</span></span>
+      </div>
+    </div>
+
+    <h1 class="sr-only">Gabriel Novaes — Portfolio</h1>
+
+    <p class="label label--tl">Developer &amp; AI</p>
+    <a class="arrow" href="#projetos" aria-label="Ver projetos">
+      <svg viewBox="0 0 90 20" fill="none" aria-hidden="true">
+        <path class="arrow__line" d="M0 10H88" />
+        <path class="arrow__head" d="M79 1.5L88 10L79 18.5" />
+      </svg>
+    </a>
+    <p class="label label--bl">Gabriel Novaes</p>
+    <a class="label label--br" href="https://github.com/gabrielnovaesdev" target="_blank" rel="noopener">github.com/gabrielnovaesdev</a>
+  </header>
+
+  <main>
+    <section class="projects" id="projetos" aria-label="Projetos">
+      <!-- Projetos entram aqui na próxima etapa -->
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>

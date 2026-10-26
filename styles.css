@@ -1,0 +1,225 @@
+/* ---------- Tokens ---------- */
+:root {
+  --bg: #161616;
+  --cream: #ebdfc7;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--cream);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Hero ----------
+   Everything inside the hero is laid out on the reference's 1200 × 675 grid.
+   1u = 100cqw / 1200, so the composition scales as one piece. */
+.hero {
+  position: relative;
+  width: min(100vw, calc(100svh * 1200 / 675));
+  aspect-ratio: 1200 / 675;
+  margin-inline: auto;
+  container-type: inline-size;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero > * { --u: calc(100cqw / 1200); }
+
+.stage {
+  position: absolute;
+  inset: 0;
+  /* the photo runs past the frame's bottom edge: cut it there, never at the top */
+  clip-path: inset(-50% -50% 0 -50%);
+  /* word + photo shrink together around the word's centre, so the photo is
+     never shown larger than its source; labels and arrow keep their place */
+  scale: 0.8;
+  transform-origin: 50% 48.3%;
+}
+
+/* Photo: eyes on the top of the letters, chin on the baseline, nose at the T/F seam. */
+.photo {
+  position: absolute;
+  left: calc(215 * var(--u));
+  top: calc(-15 * var(--u));
+  width: calc(740 * var(--u));
+  aspect-ratio: 1;
+}
+
+/* Full photo (behind the word): shoulders fade into the background */
+.photo:not(.photo--head) {
+  -webkit-mask-image:
+    linear-gradient(to bottom, #000 72%, transparent 93%),
+    linear-gradient(to right, transparent 2%, #000 22%, #000 78%, transparent 98%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, #000 72%, transparent 93%),
+    linear-gradient(to right, transparent 2%, #000 22%, #000 78%, transparent 98%);
+  mask-composite: intersect;
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  scale: 1.06;
+  filter: blur(10px);
+  transition:
+    opacity 1.4s var(--ease-out),
+    scale 1.8s var(--ease-out),
+    filter 1.4s var(--ease-out);
+}
+
+.is-ready .photo img {
+  opacity: 1;
+  scale: 1;
+  filter: blur(0);
+}
+
+/* The word: one solid layer behind the head, one outline layer on top of it */
+.word {
+  position: absolute;
+  left: calc(118 * var(--u));
+  width: calc(967 * var(--u));
+  top: calc(141 * var(--u));
+  display: flex;
+  justify-content: space-between;
+  font-family: "League Gothic", "Bebas Neue", Impact, sans-serif;
+  font-variation-settings: "wdth" 88;
+  /* cap height = 272u: top of the letters at 190u, baseline at 462u */
+  font-size: calc(370 * var(--u));
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.l {
+  display: block;
+  overflow: clip;
+  overflow-clip-margin: calc(6 * var(--u));
+}
+
+.l > span {
+  display: block;
+  -webkit-text-stroke: calc(1.5 * var(--u)) var(--cream);
+  translate: 0 105%;
+  transition: translate 1.1s var(--ease-out) calc(0.35s + var(--i, 0) * 0.07s);
+}
+
+.word--solid .l > span { color: var(--cream); }
+.word--outline .l > span { color: transparent; }
+
+.is-ready .l > span { translate: 0 0; }
+
+/* Labels */
+.label {
+  position: absolute;
+  margin: 0;
+  font-size: calc(17 * var(--u));
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  color: var(--cream);
+  text-decoration: none;
+  line-height: 1;
+  opacity: 0;
+  translate: 0 calc(10 * var(--u));
+  transition:
+    opacity 1s var(--ease-out) var(--d, 1.2s),
+    translate 1s var(--ease-out) var(--d, 1.2s);
+}
+.label--tl { left: calc(68 * var(--u)); top: calc(71 * var(--u)); }
+.label--bl { left: calc(68 * var(--u)); top: calc(588 * var(--u)); --d: 1.3s; }
+.label--br { right: calc(68 * var(--u)); top: calc(588 * var(--u)); --d: 1.4s; }
+
+.is-ready .label { opacity: 1; translate: 0 0; }
+
+/* Arrow */
+.arrow {
+  position: absolute;
+  right: calc(68 * var(--u));
+  top: calc(70 * var(--u));
+  width: calc(90 * var(--u));
+  height: calc(20 * var(--u));
+  color: var(--cream);
+}
+.arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.arrow__line,
+.arrow__head {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 1s var(--ease-io) 1.3s;
+}
+.arrow__head { transition-delay: 1.9s; }
+.is-ready .arrow__line,
+.is-ready .arrow__head { stroke-dashoffset: 0; }
+
+.arrow:focus-visible,
+.label:focus-visible { outline: 1px solid var(--cream); outline-offset: 6px; }
+
+/* ---------- Mobile: same composition, labels move out of the frame ---------- */
+@media (max-width: 700px) {
+  .hero {
+    width: 100%;
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    /* room for the top labels + the 20% the stage grows upward when scaled */
+    padding-top: calc(72px + 11.25vw);
+    padding-bottom: 56px;
+  }
+  .stage {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 1200 / 675;
+    container-type: inline-size;
+    /* scale the composition up so the word fills the screen width */
+    scale: 1.2;
+    transform-origin: 50% 100%;
+  }
+  .stage > * { --u: calc(100cqw / 1200); }
+  .label { font-size: 14px; translate: 0 8px; }
+  .label--tl { left: 16px; top: 28px; }
+  .label--bl { left: 16px; top: auto; bottom: 24px; }
+  .label--br { right: 16px; top: auto; bottom: 24px; }
+  .arrow { right: 16px; top: 26px; width: 48px; height: 16px; }
+}
+
+/* ---------- Placeholder next section ---------- */
+.projects { min-height: 60vh; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

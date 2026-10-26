@@ -1,0 +1,7 @@
+# Tooling / local only
+.claude/
+.claude-flow/
+.swarm/
+node_modules/
+.DS_Store
+Thumbs.db
