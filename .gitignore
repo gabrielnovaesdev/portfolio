@@ -8,3 +8,10 @@ Thumbs.db
 
 # Material de referência para gerar vídeos (não vai para o site)
 referencias-flow/
+
+# Ferramentas locais (não fazem parte do projeto)
+.agents/
+.impeccable/
+CLAUDE.md
+AGENTS.md
+.mcp.json
