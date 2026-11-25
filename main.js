@@ -100,7 +100,6 @@ function buildWall() {
   const cols = document.querySelectorAll("[data-wall]");
   if (!cols.length || !PROJECTS.length) return;
   const desk = isDesktop();
-  const half = Math.ceil(PROJECTS.length / 2);
   const a = PROJECTS.filter((_, i) => i % 2 === 0);
   const b = PROJECTS.filter((_, i) => i % 2 === 1);
   const lists = desk ? [a, b] : [PROJECTS, [...PROJECTS].reverse()];
@@ -119,7 +118,6 @@ function buildWall() {
     const base = ci === 0 ? 10 : 18;
     col.style.animationDuration = `${(base * n) / 2}s`;
   });
-  void half;
 }
 buildWall();
 
