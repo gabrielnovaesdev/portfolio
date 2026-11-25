@@ -3,164 +3,287 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gabriel Novaes — Portfolio</title>
-  <meta name="description" content="Portfólio de Gabriel Novaes — Developer & AI." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111111'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Impact,sans-serif' font-size='20' fill='%232b2bff'%3EG%3C/text%3E%3C/svg%3E" />
+  <title>Gabriel Novaes — Developer &amp; AI</title>
+  <meta name="description" content="Portfólio de Gabriel Novaes: sites, apps e experiências 3D com movimento, do briefing ao ar." />
+  <meta name="theme-color" content="#070707" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%23E0141E'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Arial,sans-serif' font-size='17' fill='%23ffffff'%3EG%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Instrument+Serif:ital@1&family=Inter:wght@400;500&family=League+Gothic:wdth@75..100&display=swap" rel="stylesheet" />
-  <link rel="preload" as="image" href="assets/gabriel.webp" />
-  <link rel="preload" as="image" href="assets/gabriel-head.webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="assets/gabriel-hero.webp" fetchpriority="high" />
   <link rel="stylesheet" href="styles.css" />
-  <script>document.documentElement.classList.add("js", "is-loading");</script>
 </head>
 <body>
-  <!-- Entrada: carregamento, o texto vira um recorte transparente e a câmera entra por dentro dele -->
-  <div class="loader" aria-hidden="true">
-    <svg class="loader__cut" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <clipPath id="loader-clip" clipPathUnits="userSpaceOnUse"><rect class="loader__clip-rect" /></clipPath>
-        <mask id="loader-mask" maskUnits="userSpaceOnUse">
-          <rect class="loader__mask-bg" fill="#fff" />
-          <g class="loader__zoom"><g clip-path="url(#loader-clip)"><g class="loader__rise"><text class="loader__word" fill="#000">GABRIEL NOVAES</text></g></g></g>
-        </mask>
-      </defs>
-      <rect class="loader__bg" fill="#111111" mask="url(#loader-mask)" />
-      <g class="loader__zoom"><g clip-path="url(#loader-clip)"><g class="loader__rise"><text class="loader__word loader__fill" fill="#f2f1ee">GABRIEL NOVAES</text></g></g></g>
-    </svg>
-    <div class="loader__ui">
-      <div class="eyebrow"><span>Gabriel Novaes</span><span>Portfolio © 2026</span></div>
-      <div class="eyebrow"><span class="loader__count">000</span><span>Developer &amp; AI</span></div>
-      <div class="loader__bar"><i></i></div>
-    </div>
-  </div>
-
-  <header class="hero-wrap" id="topo">
-  <div class="hero">
-    <!-- Layers, back to front: photo → solid word → head → word outline -->
-    <div class="stage" aria-hidden="true">
-      <div class="photo">
-        <img src="assets/gabriel.webp" alt="" width="1254" height="1254" decoding="async" fetchpriority="high" />
-      </div>
-      <div class="word word--solid">
-        <span class="l"><span>P</span></span>
-        <span class="l"><span>O</span></span>
-        <span class="l"><span>R</span></span>
-        <span class="l"><span>T</span></span>
-        <span class="l"><span>F</span></span>
-        <span class="l"><span>O</span></span>
-        <span class="l"><span>L</span></span>
-        <span class="l"><span>I</span></span>
-        <span class="l"><span>O</span></span>
-      </div>
-      <div class="photo photo--head">
-        <img src="assets/gabriel-head.webp" alt="" width="1254" height="1254" decoding="async" />
-      </div>
-      <div class="word word--outline">
-        <span class="l"><span>P</span></span>
-        <span class="l"><span>O</span></span>
-        <span class="l"><span>R</span></span>
-        <span class="l"><span>T</span></span>
-        <span class="l"><span>F</span></span>
-        <span class="l"><span>O</span></span>
-        <span class="l"><span>L</span></span>
-        <span class="l"><span>I</span></span>
-        <span class="l"><span>O</span></span>
-      </div>
-    </div>
-
-    <h1 class="sr-only">Gabriel Novaes — Portfolio</h1>
-
-    <p class="label label--tl">Developer &amp; AI</p>
-    <a class="arrow" href="#projetos" aria-label="Ver projetos">
-      <svg viewBox="0 0 90 20" fill="none" aria-hidden="true">
-        <path class="arrow__line" d="M0 10H88" />
-        <path class="arrow__head" d="M79 1.5L88 10L79 18.5" />
-      </svg>
+  <!-- Cabeçalho fixo: some ao rolar para baixo, volta ao rolar para cima -->
+  <header class="header" id="header">
+    <a class="logo" href="#hero" aria-label="Gabriel Novaes, início">
+      <span>GABRIEL</span><span class="logo__muted">NOVAES</span>
     </a>
-    <p class="label label--bl">Gabriel Novaes</p>
-    <a class="label label--br" href="https://github.com/gabrielnovaesdev" target="_blank" rel="noopener">github.com/gabrielnovaesdev</a>
-  </div>
-  <div class="hero-wrap__shade" aria-hidden="true"></div>
+    <a class="btn btn--light btn--bordered" href="#contato" data-open-contact data-btn="Fale comigo"></a>
   </header>
 
-  <main class="main">
-    <!-- Palco fixo: no desktop os painéis trocam por cima uns dos outros conforme o scroll -->
-    <div class="stack" id="projetos">
-      <section class="panel intro" aria-labelledby="intro-title">
-        <div class="panel__inner">
-          <div class="eyebrow">
-            <span>(01)</span>
-            <span>Projetos selecionados</span>
+  <main>
+    <!-- Hero: fica preso por 300vh, encolhe pela metade e revela a vitrine atrás -->
+    <section class="hero" id="hero">
+      <div class="hero__stage">
+        <div class="hero__copy">
+          <div class="hero__title-wrap">
+            <div class="reveal" data-reveal="chars" data-stagger="0.015" data-manual="title">
+              <h1 class="hero__title">Transformo ideias em movimento</h1>
+            </div>
           </div>
-          <h2 class="intro__title wide" id="intro-title">
-            <span class="line"><span>Projetos que</span></span>
-            <span class="line"><span><em>construí</em> do zero,</span></span>
-            <span class="line"><span>— todos no ar.</span></span>
-          </h2>
-          <p class="intro__text" data-fade>Do 3D no navegador ao app no celular. Role a página para ver cada projeto funcionando de verdade.</p>
-        </div>
-        <div class="panel__shade"></div>
-      </section>
-    </div>
-
-    <!-- Um capítulo por projeto: main.js preenche a partir de projects.js -->
-    <template id="chapter-tpl">
-      <section class="panel chapter">
-        <div class="panel__inner">
-          <div class="eyebrow chapter__top">
-            <span><b data-num></b>&nbsp;&nbsp;<span data-kind></span></span>
-            <span data-count></span>
-          </div>
-          <div class="chapter__media" data-media></div>
-          <div class="chapter__info">
-            <h3 class="chapter__name"><span class="line"><span data-name></span></span></h3>
-            <p class="chapter__desc" data-fade data-desc></p>
-            <ul class="chapter__stack" data-fade data-stack></ul>
-            <div class="chapter__links" data-fade data-links></div>
+          <div class="hero__side">
+            <div class="reveal" data-reveal="lines" data-manual="side"><p>Sites que se movem</p></div>
+            <div class="reveal" data-reveal="lines" data-manual="side"><p>Developer<br />&amp; AI</p></div>
           </div>
         </div>
-        <div class="panel__shade"></div>
-      </section>
-    </template>
-
-    <!-- Cenário: vídeo P&B com retícula, título por cima e o índice dos projetos -->
-    <section class="scene" aria-labelledby="scene-title">
-      <div class="scene__media" aria-hidden="true">
-        <video class="scene__video" src="assets/reel-720.mp4" poster="assets/reel.jpg" muted loop playsinline preload="metadata"></video>
-        <div class="scene__grid"></div>
+        <div class="hero__portrait">
+          <div class="hero__portrait-inner">
+            <img src="assets/gabriel-hero.webp" alt="Gabriel Novaes" width="1145" height="1374" draggable="false" fetchpriority="high" />
+            <!-- Loop com fundo transparente (VP9 + alfa). main.js só liga onde o navegador suporta; senão fica a foto -->
+            <video class="hero__video" muted playsinline preload="none" poster="assets/hero-loop-poster.webp" aria-hidden="true" data-src="assets/hero-loop.webm"></video>
+          </div>
+        </div>
       </div>
-      <div class="eyebrow scene__top">
-        <span>(02)</span>
-        <span>Índice</span>
-      </div>
-      <h2 class="scene__title wide" id="scene-title">
-        <span class="line"><span><em>Do 3D</em> ao app,</span></span>
-        <span class="line"><span>cada projeto</span></span>
-        <span class="line"><span>— no ar.</span></span>
-      </h2>
-      <div class="scene__cols">
-        <p class="scene__label" data-flick>06 projetos</p>
-        <p class="scene__label" data-flick>Developer &amp; AI</p>
-        <ol class="scene__list" data-index></ol>
+      <div class="hero__wall" aria-hidden="true">
+        <div class="hero__wall-sticky">
+          <div class="hero__col hero__col--1" data-wall="1"></div>
+          <div class="hero__col hero__col--2" data-wall="2"></div>
+        </div>
       </div>
     </section>
 
-    <footer class="footer">
-      <h2 class="footer__title wide">
-        <span class="line"><span>Vamos <em>construir</em></span></span>
-        <span class="line"><span>algo juntos?</span></span>
-      </h2>
-      <div class="footer__bar">
-        <span>Gabriel Novaes — Developer &amp; AI</span>
-        <a href="https://github.com/gabrielnovaesdev" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="#topo" data-scroll-top>Voltar ao topo ↑</a>
+    <!-- Projetos: arco laranja sobe, a lista avança com a rolagem e cada vídeo sobe por cima do anterior -->
+    <section class="work" id="projetos">
+      <div class="work__arc circle-clip"></div>
+      <div class="work__sticky">
+        <div class="reveal" data-reveal="chars" data-stagger="0.015">
+          <h2 class="work__title">Projetos Selecionados</h2>
+        </div>
+        <div class="work__body">
+          <div class="work__list">
+            <div class="work__track"></div>
+            <div class="work__progress"></div>
+            <div class="work__items" data-work-list></div>
+          </div>
+          <div class="work__media" data-work-media></div>
+        </div>
       </div>
-    </footer>
+    </section>
+
+    <!-- Por que trabalhar comigo -->
+    <section class="why" id="por-que">
+      <!-- Arco preto que sobe por cima dos projetos (espelha o arco branco da entrada) -->
+      <div class="why__arc" aria-hidden="true"></div>
+      <div class="why__fill" aria-hidden="true"></div>
+      <div class="why__head">
+        <div class="reveal" data-reveal="chars" data-stagger="0.015">
+          <h2 class="h-section">Por que trabalhar comigo?</h2>
+        </div>
+        <div class="reveal" data-reveal="lines">
+          <p class="why__sub">Do briefing ao site no ar, sem enrolação</p>
+        </div>
+      </div>
+      <div class="why__grid">
+        <article class="why__card">
+          <div>
+            <svg class="why__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09"/><path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05"/></svg>
+            <h3>Entrega rápida</h3>
+            <p>Landing pages e sites institucionais no ar em poucos dias, com deploy na Vercel e um link para você acompanhar desde o primeiro rascunho.</p>
+          </div>
+          <div class="why__line"><span></span></div>
+        </article>
+        <article class="why__card">
+          <div>
+            <svg class="why__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg>
+            <h3>Detalhe e movimento</h3>
+            <p>Animações com GSAP, rolagem suave e 3D com three.js, ajustados quadro a quadro para o site parecer vivo sem pesar no carregamento.</p>
+          </div>
+          <div class="why__line"><span></span></div>
+        </article>
+        <article class="why__card">
+          <div>
+            <svg class="why__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+            <h3>Código com IA no fluxo</h3>
+            <p>Uso inteligência artificial para prototipar, testar e entregar mais rápido, e sei integrar IA no seu produto quando ela realmente ajuda.</p>
+          </div>
+          <div class="why__line"><span></span></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Reel: o vídeo começa como um cartão entre as palavras e se abre até ocupar a tela -->
+    <section class="reel" id="reel" aria-label="Reel de Gabriel Novaes">
+      <div class="reel__sticky">
+        <div class="reel__word reel__word--l"><div class="reveal" data-reveal="chars" data-stagger="0.015"><h2>Por trás</h2></div></div>
+        <div class="reel__word reel__word--r"><div class="reveal" data-reveal="chars" data-stagger="0.015"><h2>do código</h2></div></div>
+        <div class="reel__frame" data-reel-frame>
+          <video class="reel__video" src="assets/reel-720.mp4" poster="assets/reel.jpg" muted loop playsinline preload="metadata"></video>
+          <div class="reel__shade" aria-hidden="true"></div>
+          <div class="reel__ui">
+            <div class="reel__meta">
+              <p class="reel__name">Gabriel Novaes</p>
+              <p class="reel__tag">Reel 2026 · Developer &amp; AI</p>
+            </div>
+            <button class="btn" type="button" data-btn="Ativar som" data-reel-sound aria-pressed="false"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Serviços: os cartões correm na horizontal enquanto a seção fica presa -->
+    <section class="services" id="servicos">
+      <div class="services__intro">
+        <div class="reveal" data-reveal="chars" data-stagger="0.015">
+          <h2 class="h-section h-section--tight">Código que fala<br />com seu público</h2>
+        </div>
+        <div class="services__text">
+          <div class="reveal" data-reveal="lines">
+            <p>Meu trabalho é transformar ideias em produtos digitais que funcionam de verdade. Seja um site institucional, uma loja virtual, uma experiência 3D ou um app, cuido do código, do movimento e da performance para que cada detalhe faça sentido para quem usa.</p>
+          </div>
+        </div>
+      </div>
+      <div class="services__sticky">
+        <div class="services__center">
+          <div class="services__row" data-services></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Índice: passe o mouse para ver a prévia flutuante de cada projeto -->
+    <section class="index" id="indice">
+      <div class="index__inner">
+        <div class="index__list-col">
+          <div class="reveal" data-reveal="chars" data-stagger="0.015">
+            <h2 class="h-section h-section--tight index__title">Tudo no ar,<br />pronto para ver</h2>
+          </div>
+          <div class="index__rows" data-index></div>
+        </div>
+        <div class="index__float" aria-hidden="true">
+          <div class="index__frame" data-index-frame></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ferramentas: os logos voam em profundidade enquanto o título fica parado -->
+    <section class="stack" id="ferramentas">
+      <div class="stack__title">
+        <div class="stack__title-inner">
+          <div class="reveal" data-reveal="chars" data-stagger="0.015">
+            <h2>Ferramentas que uso para tirar ideias do papel.</h2>
+          </div>
+        </div>
+      </div>
+      <div class="stack__fly">
+        <div class="stack__grid" data-stack></div>
+      </div>
+    </section>
+
+    <!-- Processo: carrossel com as etapas de um projeto -->
+    <section class="process" id="processo">
+      <div class="process__wrap">
+        <div class="process__head">
+          <div class="reveal" data-reveal="chars" data-stagger="0.015">
+            <h2 class="process__title">Do primeiro papo ao site no ar, passo a passo</h2>
+          </div>
+        </div>
+        <div class="process__stage">
+          <div class="process__card fade-up">
+            <div class="process__slide" data-process-slide></div>
+          </div>
+          <div class="process__avatars fade-up" data-process-avatars></div>
+          <div class="process__nav fade-up">
+            <button class="round-btn" type="button" data-process-prev aria-label="Etapa anterior">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="round-btn__fill"></span>
+            </button>
+            <button class="round-btn" type="button" data-process-next aria-label="Próxima etapa">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="round-btn__fill"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Perguntas frequentes -->
+    <section class="faq" id="faq">
+      <div class="reveal" data-reveal="chars" data-stagger="0.015">
+        <h2 class="faq__title">Perguntas Frequentes</h2>
+      </div>
+      <div class="faq__list" data-faq></div>
+    </section>
   </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <footer class="footer" id="contato">
+    <svg class="footer__bg" viewBox="0 0 1920 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <filter id="fblur" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="90" /></filter>
+      </defs>
+      <g filter="url(#fblur)">
+        <path d="M-380 420C-120 360 180 380 330 470C600 640 960 610 1100 470C1260 310 1700 230 2010 400C2240 530 2290 590 2280 600L2020 1240H-220Z" fill="#262626" />
+        <path d="M2280 600C2290 590 2240 530 2010 400C1700 230 1260 310 1100 470C960 610 600 640 330 470C180 380 -120 360 -380 420" fill="none" stroke="#E0141E" stroke-width="62" />
+        <path d="M2280 555C2290 545 2240 485 2010 355C1700 185 1260 265 1100 425C850 690 600 590 330 425C180 335 -120 315 -380 375" fill="none" stroke="#8a8a8a" stroke-width="62" opacity=".35" />
+      </g>
+    </svg>
+    <div class="footer__inner">
+      <div class="footer__card" data-footer-card>
+        <div class="footer__top">
+          <a class="logo logo--big" href="#hero" aria-label="Voltar ao início"><span>GABRIEL</span><span class="logo__muted">NOVAES</span></a>
+          <div class="footer__cta">
+            <p>Pronto para tirar sua ideia do papel?</p>
+            <a class="btn btn--light" href="#contato" data-open-contact data-btn="Fale comigo"></a>
+          </div>
+        </div>
+        <div class="footer__bottom">
+          <div class="footer__reach">
+            <h6>Onde me encontrar</h6>
+            <ul>
+              <li class="under-parent"><a class="under" href="https://github.com/gabrielnovaesdev" target="_blank" rel="noopener">github.com/gabrielnovaesdev</a></li>
+              <li class="under-parent"><a class="under" href="#contato" data-open-contact>Mande uma mensagem</a></li>
+            </ul>
+          </div>
+          <ul class="footer__social">
+            <li>
+              <a class="social" href="https://github.com/gabrielnovaesdev" target="_blank" rel="noopener" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                <span class="social__fill"></span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__legal">
+        <p>Copyright © Gabriel Novaes 2026</p>
+        <p>Developer &amp; AI</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal de contato -->
+  <div class="modal" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title" hidden>
+    <div class="modal__overlay" data-close-contact></div>
+    <div class="modal__panel">
+      <button class="modal__close" type="button" data-close-contact aria-label="Fechar"><span></span><span></span></button>
+      <div class="modal__grid">
+        <div>
+          <h2 class="modal__title" id="contact-title">Fale comigo</h2>
+          <p class="modal__sub">Conte sua ideia em poucas linhas</p>
+        </div>
+        <form class="contact-form" data-contact-form>
+          <label><span>Seu nome*</span><input name="name" type="text" required placeholder="Seu nome*" /></label>
+          <label><span>E-mail*</span><input name="email" type="email" required placeholder="E-mail*" /></label>
+          <label><span>Assunto*</span><input name="subject" type="text" required placeholder="Assunto*" /></label>
+          <label><span>Mensagem*</span><textarea name="message" rows="4" required placeholder="Mensagem*"></textarea></label>
+          <button class="btn btn--accent" type="submit" data-btn="Enviar"></button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <script src="projects.js"></script>
   <script src="main.js"></script>
