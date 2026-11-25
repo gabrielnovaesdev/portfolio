@@ -237,7 +237,9 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   position: relative;
   width: 100vw;
   height: 520vh;
-  padding-top: 8vw;
+  /* O arco (50vh) sobe 70% e termina a 15vh do topo da seção; o painel não pode começar abaixo disso,
+     senão aparece uma faixa do fundo preto entre os dois */
+  padding-top: min(8vw, 13vh);
   color: #070707;
   /* Altura de cada item: cabe na largura E na altura da tela, com qualquer quantidade de projetos */
   --row-h: min(6vw, calc(40vw / var(--rows, 6)), calc(62vh / var(--rows, 6)));
@@ -869,7 +871,7 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   .hero__tile { height: 45vw; }
 
 
-  .work { padding-top: 30vw; }
+  .work { padding-top: min(30vw, 23vh); } /* aqui o arco sobe 50% e termina a 25vh */
   .work { --row-h: min(8vw, calc(58vh / var(--rows, 6))); }
   .work__sticky { gap: min(3rem, 4vh); padding: 0 5vw; }
   .work__title { font-size: min(6.5vw, 8vh); }
