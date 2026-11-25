@@ -1,6 +1,6 @@
 /* ===== Base ===== */
 :root {
-  --bg: #050505;
+  --bg: #070707;
   --ink: #070707;
   --card: #161616;
   --white: #ffffff;
@@ -592,7 +592,8 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
 .stack__item span { font-size: 1.9vw; letter-spacing: -0.01em; white-space: nowrap; }
 
 /* ===== Processo (carrossel) ===== */
-.process { width: 100vw; background: #070707; padding: 7vw 4vw; }
+/* Sobe 35vh por cima do fim das Ferramentas, sem fundo próprio: o título dela some enquanto este entra */
+.process { position: relative; z-index: 3; width: 100vw; margin-top: -35vh; padding: 7vw 4vw; }
 .process__wrap { width: 100%; display: flex; flex-direction: column; gap: 6vw; }
 .process__head { width: 65%; margin: 0 auto; }
 .process__title { font-size: 5.2vw; line-height: 1.2 !important; text-align: center; }
@@ -686,7 +687,7 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
 .round-btn:hover .round-btn__fill { transform: scale(1); }
 
 /* ===== FAQ ===== */
-.faq { position: relative; width: 100vw; padding: 6vw 10vw; background: #070707; color: #fff; }
+.faq { position: relative; width: 100vw; padding: 6vw 10vw; color: #fff; }
 .faq__title { font-size: 5.5vw; line-height: 1.5; text-align: center; margin-bottom: 6vw; }
 .faq__item { opacity: 0; }
 .faq__q {

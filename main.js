@@ -685,6 +685,12 @@ function stack() {
     <div class="stack__item"><img src="assets/stack/${slug}.svg" alt="" width="24" height="24" /><span>${name}</span></div>`).join("");
   const items = [...grid.children];
   if (reduced) return;
+  // Saída sem corte: o título sobe, apaga e desfoca enquanto a seção seguinte entra por cima
+  const stackExit = { trigger: "#ferramentas", start: "bottom 150%", end: "bottom 85%", scrub: true };
+  gsap.fromTo(".stack__title-inner", { opacity: 1, yPercent: 0, filter: "blur(0px)" }, {
+    opacity: 0, yPercent: -30, filter: "blur(8px)", ease: "power1.in", scrollTrigger: stackExit,
+  });
+  gsap.fromTo(".stack__fly", { opacity: 1 }, { opacity: 0, ease: "power1.in", scrollTrigger: stackExit });
   const tl = gsap.timeline({
     defaults: { ease: "none" },
     scrollTrigger: { trigger: "#ferramentas", start: "top 20%", end: "bottom center", scrub: true },
