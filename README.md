@@ -58,7 +58,8 @@ Os projetos aparecem na ordem de `projects.js`. Cada um tem uma prévia em víde
 
 | Seção | O que acontece |
 | --- | --- |
-| Topo | Vídeo em loop que segue o mouse, com o título passando por trás do rosto. Ao rolar, encolhe e revela a parede de projetos |
+| Entrada | "Bem-vindo ao portfólio de" e o nome, que voa até o logo enquanto uma cortina em arco revela o site. Uma vez por sessão |
+| Topo | Vídeo em loop que segue o mouse; passar o mouse no rosto imprime pontos brancos e vermelhos (halftone). Ao rolar, encolhe e revela a parede de projetos |
 | Projetos selecionados | Arco branco sobe, a lista avança com a rolagem e cada vídeo entra por cima do anterior |
 | Por que trabalhar comigo | Arco preto cobre os projetos; linhas vermelhas acendem ao passar o mouse |
 | Por trás do código | O reel começa como um cartão e se abre até ocupar a tela, com botão de som |
@@ -107,6 +108,7 @@ A lista e a altura da seção de projetos se ajustam sozinhas à quantidade de i
 ├── styles.css       Cores, tipografia, layout e responsivo
 ├── main.js          Animações, rolagem, vídeos, carrossel, FAQ e contato
 ├── projects.js      Lista de projetos exibidos
+├── privacidade.html Política de privacidade (formulário de contato e serviços de terceiros)
 └── assets/
     ├── gabriel-hero.webp           Foto do topo (Safari, celular, menos movimento)
     ├── hero-loop.webm              Vídeo do topo com fundo transparente (VP9 + alfa)

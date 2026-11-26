@@ -31,6 +31,24 @@ ul, ol { list-style: none; }
 input, textarea { font: inherit; color: inherit; }
 ::selection { color: #fff; background-color: var(--red); }
 
+/* Acessibilidade: foco visível só para teclado, atalho "pular para o conteúdo" e texto só para leitores de tela */
+:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 6px; }
+.btn:focus-visible, .social:focus-visible, .channel:focus-visible, .round-btn:focus-visible, .modal__close:focus-visible { border-radius: 9999px; }
+main:focus { outline: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip {
+  position: fixed; top: 1rem; left: 1rem; z-index: 300;
+  padding: 0.75rem 1.25rem; border-radius: 9999px;
+  background: #fff; color: #070707; font-weight: 500;
+  transform: translateY(-200%);
+  transition: transform 0.3s var(--ease-out-expo);
+}
+.skip:focus-visible { transform: none; }
+
+/* Resposta imediata ao toque/clique (limiar de Doherty): o botão afunda um pouco */
+.btn, .round-btn, .channel, .modal__close { transition-property: color, background, border-color, transform; }
+.btn:active, .round-btn:active, .channel:active, .modal__close:active, .social:active { transform: scale(0.96); }
+
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: hidden; }
@@ -64,7 +82,6 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   color: #111111;
   transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.btn--bordered { border: 1px solid rgba(255, 255, 255, 0.2); }
 .btn.is-hover { color: #fff; }
 .btn__dot {
   position: relative;
@@ -112,6 +129,73 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
 .btn--accent .btn__dot i { background: #fff; }
 .btn--accent.is-hover { color: #111; }
 
+/* ===== Vidro líquido (inspirado no Apple Tahoe Liquid Glass Button, 21st.dev) =====
+   Sem linha de borda: a borda é luz. Reflexo claro no canto de cima, sombra suave embaixo,
+   leve desfoque e, no Chrome/Edge, refração do que está atrás (filtro SVG #liquid-glass). */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.07);
+  --glass-shadow:
+    inset 1.5px 1.5px 1px -0.5px rgba(255, 255, 255, 0.55),
+    inset -1px -1.5px 1px -0.5px rgba(255, 255, 255, 0.22),
+    inset 0 0 10px rgba(255, 255, 255, 0.08),
+    inset 0 10px 16px -12px rgba(255, 255, 255, 0.35),
+    inset 0 -8px 14px -10px rgba(0, 0, 0, 0.45),
+    0 10px 28px -10px rgba(0, 0, 0, 0.55);
+  --glass-shadow-hover:
+    inset 1.5px 1.5px 1px -0.5px rgba(255, 255, 255, 0.75),
+    inset -1px -1.5px 1px -0.5px rgba(255, 255, 255, 0.3),
+    inset 0 0 14px rgba(255, 255, 255, 0.14),
+    inset 0 12px 18px -12px rgba(255, 255, 255, 0.45),
+    inset 0 -8px 14px -10px rgba(0, 0, 0, 0.45),
+    0 14px 32px -10px rgba(0, 0, 0, 0.6);
+}
+.btn--glass, .social, .channel, .round-btn, .faq__icon, .service__arrow {
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(6px) saturate(170%) brightness(1.08);
+  backdrop-filter: blur(6px) saturate(170%) brightness(1.08);
+  transition: transform 0.5s var(--ease-out-expo), box-shadow 0.4s ease, color 0.4s ease, background 0.4s ease;
+}
+html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .service__arrow) {
+  backdrop-filter: url(#liquid-glass) blur(3px) saturate(170%) brightness(1.08);
+}
+.btn--glass:hover, .social:hover, .channel:hover, .round-btn:hover, .service:hover .service__arrow, .faq__q:hover .faq__icon {
+  box-shadow: var(--glass-shadow-hover);
+  transform: scale(1.04);
+}
+.btn--glass { color: #fff; }
+.btn--glass .btn__dot i { background: #fff; }
+.btn--glass.is-hover { color: #0a0a0a; }
+.channel:hover { background: var(--glass-bg); color: #fff; }
+/* No modal o vidro fica sobre o vermelho do fundo: saturação menor para não virar um botão vermelho */
+.channel, html.lg-refract .channel { -webkit-backdrop-filter: blur(6px) saturate(115%); backdrop-filter: blur(6px) saturate(115%); }
+.btn--glass:active, .social:active, .channel:active, .round-btn:active { transform: scale(0.96); transition-duration: 0.15s; }
+
+/* ===== Tela de entrada ===== */
+.loader { position: fixed; inset: 0; z-index: 500; overflow: hidden; animation: loader-failsafe 0.6s 9s forwards; }
+/* Texto escondido até o JavaScript começar a animação; se algo falhar, a tela some sozinha em 9 s */
+.loader__inner { opacity: 0; }
+@keyframes loader-failsafe { to { opacity: 0; visibility: hidden; } }
+.loader[hidden] { display: none; }
+/* Fundo um pouco mais alto que a tela: a curva de baixo fica escondida até a cortina subir */
+.loader__bg {
+  position: absolute; left: -10vw; right: -10vw; top: 0;
+  height: calc(100% + 20vh);
+  background: #070707;
+  border-radius: 0 0 50% 50% / 0 0 20vh 20vh;
+  will-change: transform;
+}
+.loader__inner { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.loader__hello { font-size: clamp(0.95rem, 1.2vw, 1.25rem); color: rgba(255, 255, 255, 0.6); margin-bottom: clamp(0.75rem, 1.6vw, 1.5rem); }
+.loader__name { display: inline-flex; font-size: clamp(2.75rem, 8.2vw, 9.5rem); line-height: 1; letter-spacing: -0.01em; color: #fff; transform-origin: 0 0; will-change: transform; }
+/* Cada palavra e cada letra sobem por trás de uma máscara */
+.loader__w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.loader__w > span { display: inline-block; will-change: transform; }
+.loader__name .loader__w { padding-bottom: 0.12em; margin-bottom: -0.12em; }
+.loader__hello .loader__w + .loader__w { margin-left: 0.28em; }
+.loader__bar { position: relative; width: clamp(120px, 14vw, 220px); height: 1px; margin-top: clamp(1.75rem, 3vw, 3rem); background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+.loader__bar i { position: absolute; inset: 0; background: var(--red); transform: scaleX(0); transform-origin: left; }
+
 /* ===== Header ===== */
 .header {
   position: fixed;
@@ -127,6 +211,24 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   transition: backdrop-filter 0.5s ease-out, -webkit-backdrop-filter 0.5s ease-out;
 }
 .header.is-blur { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.nav { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 2.4vw; }
+.nav__link {
+  position: relative;
+  padding: 0.6rem 0;
+  font-size: 1.05vw;
+  color: rgba(255, 255, 255, 0.72);
+  transition: color 0.3s;
+}
+.nav__link::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0.35rem; height: 1px;
+  background: currentColor; transform: scaleX(0); transform-origin: right;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+.nav__link:hover { color: #fff; }
+.nav__link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* Ação principal do hero */
+.hero__cta { display: flex; align-items: center; gap: 2vw; margin-top: 2vw; opacity: 0; }
 
 .logo {
   display: inline-flex;
@@ -150,7 +252,7 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 4vw;
+  padding: 4.5vw 4vw 0; /* desconta a altura do cabeçalho para o título não colar no menu */
   overflow: hidden;
   /* Mesma técnica da referência: camadas de luz radial sobre uma base vertical escura.
      Ponto quente (vermelho claro) embaixo à esquerda, corpo carmim à esquerda do retrato,
@@ -178,6 +280,7 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
 }
 .hero__portrait {
   position: absolute;
+  pointer-events: none; /* a caixa da foto cobre o hero: sem isso ela engole o clique do botão */
   /* Caixa ajustada para a cabeça ocupar a mesma altura da referência */
   bottom: -15.5%;
   left: 50%;
@@ -205,7 +308,7 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
 }
 /* Vídeo em loop (recorte 1120x880 do 16:9): mesma altura de cabeça da foto. A caixa do retrato tem 121% da tela
    e sai 15,5% para baixo; 100,8% dela = 122% da tela, com a base 1,7% abaixo da caixa */
-.hero__video {
+.hero__video, .hero__fx {
   position: absolute;
   left: 50%;
   bottom: -1.7%;
@@ -220,6 +323,10 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
 }
 .hero__portrait.has-video .hero__video { opacity: 1; }
+/* Halftone no hover: o canvas desenha o mesmo vídeo e, onde o mouse passa, imprime em pontos brancos e vermelhos.
+   Com o canvas pronto, o vídeo segue tocando por baixo, só que invisível. */
+.hero__portrait.has-fx .hero__video { opacity: 0; transition: none; }
+.hero__portrait.has-fx .hero__fx { opacity: 1; transition: none; }
 .hero__portrait.has-video img { opacity: 0; transition: opacity 0.6s ease-out; }
 .hero__wall { position: absolute; inset: 0; width: 100%; height: 100%; background: #070707; }
 .hero__wall-sticky {
@@ -508,11 +615,10 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
   transition: all 0.3s ease-out;
 }
-.service.is-active .service__arrow { background: var(--red); border-color: var(--red); color: #fff; }
+.service.is-active .service__arrow { background: var(--red); color: #fff; }
 .service__body { transition: color 0.45s ease-out; }
 .service.is-active .service__body { color: #070707; }
 .service__body li::before { transition: background 0.45s ease-out; }
@@ -536,7 +642,7 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
 .index__title { margin-bottom: 4vw; }
 .index__row { position: relative; display: block; padding: 2rem 0; }
 .index__row h3 { font-size: 1.8vw; font-weight: 400; line-height: 1.5; }
-.index__row p { font-size: 1.25vw; letter-spacing: 0.025em; color: rgba(255, 255, 255, 0.3); margin-top: 0.75rem; line-height: 1.5; text-transform: uppercase; }
+.index__row p { font-size: 1.25vw; letter-spacing: 0.025em; color: rgba(255, 255, 255, 0.55); margin-top: 0.75rem; line-height: 1.5; text-transform: uppercase; }
 .index__sep { position: relative; height: 1px; width: 100%; transform-origin: left; transform: scaleX(0); }
 .index__float {
   position: absolute;
@@ -673,7 +779,6 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   width: 3rem;
   height: 3rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -714,7 +819,6 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .faq__icon i {
   position: absolute;
@@ -760,25 +864,13 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
 .footer__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6rem; }
 .footer__cta { display: flex; flex-direction: column; gap: 2vw; align-items: flex-end; }
 .footer__cta p { font-size: 3.4vw; text-align: end; width: 75%; line-height: 1.15; }
-.footer__bottom { display: flex; width: 100%; align-items: flex-end; justify-content: space-between; gap: 9rem; }
-.footer__reach h6 { text-transform: uppercase; margin-bottom: 1.25rem; font-size: 1.25vw; line-height: 1.5; }
-.footer__reach ul { font-size: 1.25vw; line-height: 1.5; }
-.footer__reach li + li { margin-top: 0.5rem; }
-.under {
-  transition: all 1s var(--ease-out-expo);
-  background-image: linear-gradient(#0000, #0000), linear-gradient(#fff, #fff);
-  background-position: 100% 100%, 0 100%;
-  background-repeat: no-repeat;
-  background-size: 100% 0, 0% 1px;
-}
-.under-parent:hover .under { background-size: 100% 0, 100% 1px; }
+.footer__bottom { display: flex; width: 100%; justify-content: flex-end; }
 .footer__social { display: flex; gap: 1rem; }
 .social {
   position: relative;
   display: block;
-  padding: 0.625rem;
+  padding: 0.75rem; /* 46px no total: área de toque confortável (lei de Fitts) */
   border-radius: 9999px;
-  border: 1px solid currentColor;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
@@ -794,7 +886,6 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   transition: transform 0.3s ease-in-out;
 }
 .social--line svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.footer__social li:hover .social { transform: scale(0.95); }
 .footer__social li:hover .social__fill { transform: scale(1); }
 .footer__social li:hover .social svg { color: #070707; }
 .footer__legal { display: flex; justify-content: space-between; padding: 3rem 0 2rem; font-size: 1.125rem; line-height: 1.75rem; }
@@ -819,12 +910,12 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   border-radius: clamp(1.25rem, 2vw, 2rem);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: var(--pad);
-  /* O mesmo vermelho do hero e do rodapé, mais contido */
-  background-color: #0e0a0b;
+  /* As mesmas cores do hero (ponto quente #ff3b30 e carmim #b80f19), só que ocupando menos área */
+  background-color: #0d0809;
   background-image:
-    radial-gradient(60% 85% at 0% 100%, rgba(224, 20, 30, 0.55) 0%, rgba(224, 20, 30, 0.2) 40%, rgba(224, 20, 30, 0) 72%),
-    radial-gradient(45% 60% at 100% 0%, rgba(224, 20, 30, 0.2) 0%, rgba(224, 20, 30, 0) 70%),
-    linear-gradient(160deg, #1a1213 0%, #0e0a0b 60%);
+    radial-gradient(38% 60% at 0% 100%, rgba(255, 59, 48, 0.8) 0%, rgba(255, 59, 48, 0.3) 35%, rgba(255, 59, 48, 0) 68%),
+    radial-gradient(55% 85% at 8% 90%, rgba(184, 15, 25, 0.75) 0%, rgba(160, 14, 22, 0.35) 40%, rgba(120, 10, 16, 0) 72%),
+    linear-gradient(180deg, #1f1314 0%, #110a0b 60%, #0d0809 100%);
   box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.6);
 }
 .modal__panel::-webkit-scrollbar { display: none; }
@@ -869,7 +960,6 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   display: inline-flex; align-items: center; gap: 0.5rem;
   padding: 0.55rem 1rem 0.55rem 0.8rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.04);
   font-size: 0.95rem;
   transition: background 0.3s, border-color 0.3s, color 0.3s;
@@ -903,6 +993,10 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
 .contact-form__status { font-size: 0.95rem; line-height: 1.35; color: rgba(255, 255, 255, 0.7); }
 .contact-form__status[data-kind="ok"] { color: #fff; }
 .contact-form__status[data-kind="error"] { color: var(--red); }
+.contact-form__note { font-size: 0.8rem; line-height: 1.4; color: rgba(255, 255, 255, 0.5); }
+.contact-form__note a { color: rgba(255, 255, 255, 0.75); text-decoration: underline; text-underline-offset: 2px; }
+.footer__privacy { color: inherit; text-decoration: none; transition: opacity 0.3s; }
+.footer__privacy:hover { opacity: 0.7; }
 
 /* ===== Tablet (até 1025px) ===== */
 @media (max-width: 1025px) {
@@ -917,6 +1011,8 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   .hero__stage { padding: 30vw 5vw 0; align-items: flex-start; }
   .hero__copy { flex-direction: column; gap: 2rem; }
   .hero__title-wrap { width: 62%; }
+  .nav { display: none; }
+  .hero__cta { margin-top: 4vw; }
   .hero__title { font-size: 12vw; }
   .hero__side { width: 40%; font-size: 3.5vw; text-align: start; flex-direction: column-reverse; gap: 5rem; }
   .hero__portrait { width: 100%; transform: translateX(-40%); scale: 1; }
@@ -990,12 +1086,32 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   .footer__top { flex-direction: column-reverse; align-items: center; gap: 2.5rem; }
   .footer__cta { align-items: center; text-align: center; gap: 2vw; }
   .footer__cta p { font-size: 5vw; width: 100%; text-align: center; }
-  .footer__bottom { flex-direction: column; align-items: center; text-align: center; gap: 2.5rem; }
-  .footer__reach h6, .footer__reach ul { font-size: 2.4vw; }
+  .footer__bottom { justify-content: center; }
 
 }
 
 /* ===== Celular ===== */
+/* Tablet em pé: o personagem desce e encolhe para ficar abaixo do título e do botão, como no celular */
+@media (min-width: 768px) and (max-width: 1025px) and (orientation: portrait) {
+  .hero__portrait { width: 96%; height: auto; top: auto; bottom: -25%; transform: translateX(-27%); }
+}
+
+/* Tablet deitado e telas largas e baixas (768–1025 px na horizontal): o layout de tablet é para a tela em pé
+   e, deitado, o personagem cobria o título. Aqui volta a composição do desktop. */
+@media (min-width: 768px) and (max-width: 1025px) and (orientation: landscape) {
+  .hero__stage { padding: 4.5vw 4vw 0; align-items: center; }
+  .hero__copy { flex-direction: row; gap: 0; }
+  .hero__title-wrap { width: 45%; }
+  .hero__title { font-size: 7.5vw; }
+  .hero__cta { margin-top: 2vw; }
+  .hero__side { width: 14%; font-size: 1.6vw; text-align: end; flex-direction: column; gap: 0; }
+  .hero__portrait { width: 180%; transform: translateX(-46.5%); scale: 0.88; }
+  .hero__portrait img {
+    -webkit-mask-image: linear-gradient(to right, transparent 32%, #000 40%, #000 60%, transparent 68%);
+    mask-image: linear-gradient(to right, transparent 32%, #000 40%, #000 60%, transparent 68%);
+  }
+}
+
 @media (max-width: 767px) {
   .h-section { font-size: 9vw; }
   .header { padding: 1rem 5vw; }
@@ -1006,6 +1122,7 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   .btn__ghost, .btn__text { font-size: 4.2vw; }
 
   .hero__title-wrap { width: 100%; }
+  .hero__cta { display: none; } /* no celular o botão do cabeçalho já está na tela: sem ação repetida */
   .hero__title { font-size: 15vw; }
   .hero__side { font-size: 4.5vw; gap: 7vw; padding: 0; }
   .hero__portrait { width: 160%; height: auto; top: auto; bottom: -30%; transform: translateX(-40%); scale: 1; }
@@ -1082,7 +1199,6 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   .footer__top { gap: 4rem; }
   .footer__cta { gap: 7vw; }
   .footer__cta p { font-size: 7.5vw; }
-  .footer__reach h6, .footer__reach ul { font-size: 4vw; }
   .footer__legal { flex-direction: column; gap: 0.5rem; font-size: 0.875rem; text-align: center; padding: 2rem 0 1.5rem; }
 
   .modal { padding: 0.75rem; --pad: 1.25rem; --gap: clamp(0.5rem, 1.3vh, 0.75rem); }

@@ -12,6 +12,12 @@ const INSTAGRAM = "gb__novaes";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
+// Vidro líquido: só Chrome/Edge (Chromium) aplicam filtro SVG dentro do backdrop-filter.
+// Nos outros navegadores os botões ficam com o vidro fosco, sem a refração.
+if (/Chrome|Chromium|Edg\//.test(navigator.userAgent) && !/Firefox|FxiOS/.test(navigator.userAgent)) {
+  document.documentElement.classList.add("lg-refract");
+}
+
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isDesktop = () => window.innerWidth > 1025;
 const PROJECTS = window.PROJECTS || [];
@@ -72,10 +78,10 @@ function runReveal(wrap) {
   const targets = [];
   [...wrap.children].forEach((el) => {
     if (by === "lines") {
-      const s = SplitText.create(el, { type: "lines", mask: "lines", linesClass: "line++", reduceWhiteSpace: false });
+      const s = SplitText.create(el, { type: "lines", mask: "lines", linesClass: "line++", reduceWhiteSpace: false, aria: "hidden" });
       targets.push(...s.lines);
     } else {
-      const s = SplitText.create(el, { type: "lines,chars", mask: "chars", charsClass: "char++", reduceWhiteSpace: false });
+      const s = SplitText.create(el, { type: "lines,chars", mask: "chars", charsClass: "char++", reduceWhiteSpace: false, aria: "hidden" });
       (s.masks || []).forEach((m) => {
         m.style.paddingInline = "0.04em";
         m.style.marginInline = "-0.04em";
@@ -127,6 +133,116 @@ function buildWall() {
 }
 buildWall();
 
+/* ---------- Hero: halftone no hover (inspirado no Halftone Reveal do React Bits, modo reverso duotone) ----------
+   Um canvas WebGL desenha o vídeo do personagem. Por onde o mouse passa, a imagem vira uma impressão
+   em pontos brancos (retícula a 45°) e vermelhos (a 15°), que se desfaz em cerca de 1 s.
+   Só no computador, com o vídeo ativo; quem prefere menos movimento nem chega aqui. */
+function heroHalftone(vid, box, isOnScreen) {
+  if (window.matchMedia("(hover: none)").matches) return;
+  const cv = document.createElement("canvas");
+  cv.className = "hero__fx";
+  cv.setAttribute("aria-hidden", "true");
+  const gl = cv.getContext("webgl", { premultipliedAlpha: false, alpha: true, antialias: false });
+  if (!gl) return;
+  vid.after(cv);
+
+  const vs = "attribute vec2 p;varying vec2 uv;void main(){uv=p*.5+.5;uv.y=1.-uv.y;gl_Position=vec4(p,0,1);}";
+  const fs = `precision mediump float;
+varying vec2 uv; uniform sampler2D vid, mask; uniform vec2 res; uniform float cell;
+vec4 S(vec2 u){ return texture2D(vid, clamp(u, 0., 1.)); }
+float L(vec3 c){ return dot(c, vec3(.299,.587,.114)); }
+float dots(vec2 px, float ang, out float a){
+  float s = sin(ang), c = cos(ang);
+  vec2 r = mat2(c,-s,s,c) * px;
+  vec2 id = floor(r / cell) + .5;
+  vec4 col = S((mat2(c,s,-s,c) * (id * cell)) / res);
+  a = col.a;
+  float l = clamp((L(col.rgb) - .04) * 1.15, 0., 1.);
+  return 1. - smoothstep(-.06, .06, length(r / cell - id) - sqrt(l) * .62);
+}
+void main(){
+  vec4 photo = S(uv);
+  // O rastro esmaece em 8 bits e para em ~4%; abaixo de 6% conta como zero para a impressão sumir por inteiro
+  float m = (texture2D(mask, uv).r - .06) / .94;
+  if (m <= 0.) { gl_FragColor = photo; return; }
+  vec2 px = uv * res; float a1, a2;
+  float w = dots(px, .785, a1);
+  float r = dots(px + 2., .26, a2);
+  vec3 ink = mix(vec3(w), vec3(.88,.08,.12), r * (1. - w * .6));
+  gl_FragColor = mix(photo, vec4(ink, max(w * a1, r * a2)), smoothstep(0., .6, m));
+}`;
+  const compile = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; };
+  const v = compile(gl.VERTEX_SHADER, vs), f = compile(gl.FRAGMENT_SHADER, fs);
+  if (!v || !f) { cv.remove(); return; }
+  const pr = gl.createProgram();
+  gl.attachShader(pr, v); gl.attachShader(pr, f); gl.linkProgram(pr); gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const ap = gl.getAttribLocation(pr, "p");
+  gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap, 2, gl.FLOAT, false, 0, 0);
+  const U = (n) => gl.getUniformLocation(pr, n);
+  const texture = (unit) => {
+    const t = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    return t;
+  };
+  const tVid = texture(0), tMask = texture(1);
+  gl.uniform1i(U("vid"), 0); gl.uniform1i(U("mask"), 1);
+
+  // Rastro do mouse: círculos suaves num canvas pequeno que escurece um pouco a cada quadro
+  const mk = document.createElement("canvas");
+  mk.width = 224; mk.height = 176;
+  const mx = mk.getContext("2d");
+  let pointer = null, cell = 7;
+  const resize = () => {
+    const r = cv.getBoundingClientRect();
+    const d = Math.min(window.devicePixelRatio || 1, 1.5);
+    cv.width = Math.max(1, Math.round(r.width / (gsap.getProperty(".hero__stage", "scale") || 1) * d));
+    cv.height = Math.max(1, Math.round(cv.width * 880 / 1120));
+    cell = 7 * d;
+    gl.viewport(0, 0, cv.width, cv.height);
+  };
+  window.addEventListener("resize", resize);
+  window.addEventListener("pointermove", (e) => {
+    if (e.pointerType === "touch") return;
+    const r = cv.getBoundingClientRect();
+    pointer = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+  }, { passive: true });
+  document.addEventListener("pointerleave", () => { pointer = null; });
+
+  let ready = false;
+  const draw = () => {
+    requestAnimationFrame(draw);
+    if (!isOnScreen() || document.hidden || vid.readyState < 2 || !box.classList.contains("has-video")) return;
+    if (!ready) { ready = true; resize(); box.classList.add("has-fx"); }
+    // Rastro: escurece (linger) e pinta onde o mouse está, se estiver sobre o personagem
+    mx.fillStyle = "rgba(0,0,0,0.045)";
+    mx.fillRect(0, 0, mk.width, mk.height);
+    const inside = pointer && pointer.x > -0.1 && pointer.x < 1.1 && pointer.y > -0.1 && pointer.y < 1.1;
+    if (inside) {
+      const x = pointer.x * mk.width, y = pointer.y * mk.height, rad = 26;
+      const g = mx.createRadialGradient(x, y, 0, x, y, rad);
+      g.addColorStop(0, "rgba(255,255,255,.5)");
+      g.addColorStop(0.55, "rgba(255,255,255,.2)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      mx.fillStyle = g; mx.beginPath(); mx.arc(x, y, rad, 0, Math.PI * 2); mx.fill();
+    }
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tMask);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mk);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tVid);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, vid);
+    gl.uniform2f(U("res"), cv.width, cv.height);
+    gl.uniform1f(U("cell"), cell);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  };
+  requestAnimationFrame(draw);
+}
+
 /* ---------- Hero: loop do Gabriel virando a cabeça ---------- */
 // Só onde dá para mostrar o fundo transparente: Chrome, Edge e Firefox (VP9 com alfa).
 // Safari, celular e quem prefere menos movimento ficam com a foto.
@@ -138,36 +254,147 @@ function heroVideo() {
   const safari = /Safari/.test(ua) && !/Chrome|Chromium|Edg|Firefox|FxiOS|CriOS/.test(ua);
   const vp9 = vid.canPlayType('video/webm; codecs="vp9"');
   if (reduced || safari || !vp9 || window.innerWidth <= 767) { vid.remove(); return; }
-  vid.src = vid.dataset.src;
   vid.preload = "auto";
   vid.addEventListener("playing", () => box.classList.add("has-video"), { once: true });
-  // Loop com respiro: ao terminar, fica 2s parado no último quadro (igual ao primeiro) e recomeça
+
+  // Loop com respiro: ao terminar, fica 2 s parado no último quadro (igual ao primeiro) e recomeça.
+  // Estado explícito para nada prender o vídeo:
+  //   onScreen   o hero está visível (fora dele, pausa para poupar processamento)
+  //   resting    está nos 2 s de pausa entre uma volta e outra
   const LOOP_DELAY = 2000;
-  let active = true;
+  let onScreen = true;
+  let resting = false;
   let timer = null;
-  const play = () => vid.play().catch(() => {});
-  vid.addEventListener("ended", () => {
+  const shouldPlay = () => onScreen && !resting && !document.hidden;
+  const play = () => { if (shouldPlay() && vid.paused) vid.play().catch(() => {}); };
+
+  const restart = () => {
+    if (resting) return;
+    resting = true;
+    vid.pause();
     clearTimeout(timer);
     timer = setTimeout(() => {
       timer = null;
+      resting = false;
       vid.currentTime = 0;
-      if (active) play();
+      play();
     }, LOOP_DELAY);
+  };
+  vid.addEventListener("ended", restart);
+  // Rede de segurança: alguns navegadores não disparam "ended" depois de muitas voltas
+  vid.addEventListener("timeupdate", () => {
+    if (vid.duration && vid.currentTime >= vid.duration - 0.06) restart();
   });
-  // Pausa quando o hero sai da tela, para não gastar processamento à toa
+  // Se o navegador pausar sozinho (aba em segundo plano, economia de energia), retoma assim que puder
+  vid.addEventListener("pause", () => { if (!vid.ended) setTimeout(play, 300); });
+  vid.addEventListener("stalled", () => setTimeout(play, 500));
+  document.addEventListener("visibilitychange", play);
+
+  // Vigia: se o vídeo deveria estar rodando mas o tempo parou por 1,5 s, destrava
+  let lastT = -1, still = 0;
+  setInterval(() => {
+    if (!shouldPlay() || !vid.src) { still = 0; return; }
+    if (vid.currentTime === lastT) {
+      still += 500;
+      if (still >= 1500) { still = 0; if (vid.currentTime >= vid.duration - 0.1) restart(); else { vid.pause(); vid.play().catch(() => {}); } }
+    } else still = 0;
+    lastT = vid.currentTime;
+  }, 500);
+
+  // Visível = qualquer parte do hero dentro da tela (antes pausava ao voltar exatamente ao topo)
   ScrollTrigger.create({
-    trigger: "#hero", start: "top top", end: "bottom top",
+    trigger: "#hero", start: "top bottom", end: "bottom top",
     onToggle: (self) => {
-      active = self.isActive;
-      if (active) { if (!timer || vid.currentTime < vid.duration) play(); }
-      else vid.pause();
+      onScreen = self.isActive;
+      if (onScreen) play(); else vid.pause();
     },
   });
-  play();
+
+  heroHalftone(vid, box, () => onScreen);
+
+  // O vídeo vai inteiro para a memória antes de tocar: voltar ao início fica instantâneo
+  // em qualquer servidor (o servidor local de teste não entrega o arquivo em partes).
+  fetch(vid.dataset.src)
+    .then((r) => (r.ok ? r.blob() : Promise.reject()))
+    .then((blob) => { vid.src = URL.createObjectURL(blob); })
+    .catch(() => { vid.src = vid.dataset.src; })
+    .finally(play);
 }
 
-/* ---------- Abertura ---------- */
-function intro() {
+/* ---------- Tela de entrada ----------
+   1. Tela neutra: "Bem-vindo ao portfólio de" sobe palavra por palavra, depois o nome letra por letra
+   2. Uma linha vermelha fina acompanha o carregamento (fontes e página)
+   3. Saída: o nome encolhe e voa até o logo do cabeçalho, a cortina sobe em arco e o hero começa por baixo
+   Só na primeira visita da sessão; quem prefere menos movimento entra direto. */
+function loader(pageReady, start) {
+  const el = document.getElementById("loader");
+  let seen = false;
+  try { seen = sessionStorage.getItem("gn-intro") === "1"; } catch {}
+  if (!el || seen) { el?.remove(); pageReady.then(() => start(false)); return; }
+  try { sessionStorage.setItem("gn-intro", "1"); } catch {}
+
+  const wrapChars = (node, byWord) => {
+    node.querySelectorAll(":scope > span").length
+      ? node.querySelectorAll(":scope > span").forEach((s) => wrapChars(s, byWord))
+      : (node.innerHTML = (byWord ? node.textContent.split(" ") : [...node.textContent])
+          .map((t) => `<span class="loader__w"><span>${t}</span></span>`).join(""));
+  };
+  const hello = el.querySelector("[data-loader-hello]");
+  const name = el.querySelector("[data-loader-name]");
+  const bar = el.querySelector("[data-loader-bar]");
+  wrapChars(hello, true);
+  wrapChars(name, false);
+
+  const t0 = performance.now();
+  const ready = Promise.race([
+    Promise.all([
+      pageReady,
+      document.readyState === "complete" ? Promise.resolve() : new Promise((r) => window.addEventListener("load", r, { once: true })),
+    ]),
+    new Promise((r) => setTimeout(r, 4000)),
+  ]);
+
+  // Só começa quando a fonte do título carregou (no máximo 0,6 s), para as letras não trocarem de fonte no meio
+  const fontIn = document.fonts ? document.fonts.load('400 1em "Host Grotesk"').catch(() => {}) : Promise.resolve();
+  const enter = gsap.timeline({ paused: true });
+  Promise.race([fontIn, new Promise((r) => setTimeout(r, 600))]).then(() => {
+    gsap.set(el.querySelector(".loader__inner"), { opacity: 1 });
+    enter.play();
+  });
+  enter.from(hello.querySelectorAll(".loader__w > span"), { yPercent: 110, duration: 0.9, ease: "power4.out", stagger: 0.06 }, 0.15)
+    .from(name.querySelectorAll(".loader__w > span"), { yPercent: 110, duration: 1, ease: "power4.out", stagger: 0.035 }, 0.45)
+    .to(bar, { scaleX: 0.7, duration: 1.6, ease: "power2.out" }, 0.3);
+
+  ready.then(() => {
+    const wait = Math.max(0, 2100 - (performance.now() - t0));
+    gsap.delayedCall(wait / 1000, leave);
+  });
+
+  function leave() {
+    const header = document.getElementById("header");
+    const logo = header.querySelector(".logo");
+    const from = name.getBoundingClientRect();
+    const to = logo.getBoundingClientRect();
+    const s = to.width / from.width;
+    const tl = gsap.timeline({ onComplete: () => { el.remove(); lenis.start(); } });
+    tl.to(bar, { scaleX: 1, duration: 0.35, ease: "power2.inOut" }, 0)
+      .to([hello, bar.parentNode], { opacity: 0, y: -16, duration: 0.5, ease: "power2.in" }, 0.25)
+      // O nome vira o logo: mesma fonte, só muda posição e escala
+      .to(name, { x: to.left - from.left, y: to.top - from.top, scale: s, duration: 1.15, ease: "power4.inOut" }, 0.35)
+      .to(name.querySelectorAll(".logo__muted .loader__w > span"), { color: "#afafaf", duration: 0.6 }, 0.6)
+      // Cortina em arco subindo e o hero começando por baixo dela
+      .to(el.querySelector(".loader__bg"), { yPercent: -100, duration: 1.25, ease: "power4.inOut" }, 0.45)
+      .call(() => start(true), undefined, 0.75)
+      // Troca do nome pelo logo de verdade, sem salto
+      .set(header, { yPercent: 0 }, 1.45)
+      .to(header, { opacity: 1, duration: 0.45, ease: "power1.out" }, 1.45)
+      .to(name, { opacity: 0, duration: 0.3 }, 1.7);
+  }
+}
+
+/* ---------- Abertura do hero ---------- */
+// fromLoader: a tela de entrada já cuida do cabeçalho e da rolagem
+function intro(fromLoader) {
   const portrait = document.querySelector(".hero__portrait");
   const header = document.getElementById("header");
   const state = { reveal: -40 };
@@ -181,7 +408,9 @@ function intro() {
     .fromTo(portrait, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "power2.out" }, 0)
     .call(() => document.querySelectorAll('[data-manual="title"]').forEach(runReveal), undefined, 1)
     .call(() => document.querySelectorAll('[data-manual="side"]').forEach(runReveal), undefined, 1.5)
+    .fromTo("[data-hero-cta]", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, 1.6)
     .call(() => {
+      if (fromLoader) return;
       gsap.fromTo(header, { yPercent: -50, opacity: 0 }, {
         yPercent: 0, opacity: 1, duration: 0.8, ease: "power3.out",
         onComplete: () => lenis.start(),
@@ -256,7 +485,7 @@ function work() {
   if (!reduced) section.style.height = `${Math.round((160 + (PROJECTS.length - 1) * 75) / 0.9)}vh`;
 
   list.innerHTML = PROJECTS.map((p, i) => `
-    <div class="work__item" data-i="${i}" role="button" tabindex="0" aria-label="Ver ${p.name}">
+    <div class="work__item" data-i="${i}" role="button" tabindex="0">
       <span class="work__dot"></span>
       <div>
         <h3>${p.name}</h3>
@@ -626,7 +855,7 @@ function indexList() {
   PROJECTS.forEach((p, i) => {
     if (i !== 0) html.push('<div class="index__sep"></div>');
     html.push(`
-      <a class="index__row" href="${linkOf(p)}" target="_blank" rel="noopener">
+      <a class="index__row" href="${linkOf(p)}" target="_blank" rel="noopener" aria-label="${p.name}, ${p.kind} (abre em nova aba)">
         <div class="reveal" data-reveal="lines"><h3>${p.name}</h3></div>
         <div class="reveal" data-reveal="lines"><p>${p.kind}</p></div>
       </a>`);
@@ -840,6 +1069,15 @@ const FAQ = [
 function faq() {
   const host = document.querySelector("[data-faq]");
   if (!host) return;
+  // Dados estruturados (FAQPage) gerados da mesma lista exibida, para nunca divergirem do texto na tela
+  const ld = document.createElement("script");
+  ld.type = "application/ld+json";
+  ld.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+  });
+  document.head.appendChild(ld);
   host.innerHTML = FAQ.map(([q, a], i) => `
     <div class="faq__item">
       <div class="faq__q" role="button" tabindex="0" aria-expanded="false" aria-controls="faq-a-${i}" id="faq-q-${i}">
@@ -914,10 +1152,7 @@ function contactLinks() {
   document.querySelectorAll("[data-contact-link]").forEach((li) => {
     const url = links[li.dataset.contactLink];
     if (!url) { li.remove(); return; }
-    const a = li.querySelector("a");
-    a.href = url;
-    const handle = a.matches("[data-contact-handle]") ? a : null;
-    if (handle) handle.textContent = `@${INSTAGRAM.replace(/^@/, "")}`;
+    li.querySelector("a").href = url;
   });
 }
 
@@ -1047,7 +1282,34 @@ function contactModal() {
   });
 }
 
+/* ---------- Links internos (menu, logos): viagem animada até a seção, nunca um salto seco ---------- */
+// Acelera no começo, desacelera na chegada; quanto mais longe o destino, mais longa a viagem (até 2,6 s)
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+function anchorLinks() {
+  document.querySelectorAll('a[href^="#"]:not([data-open-contact]):not(.skip)').forEach((a) => {
+    a.addEventListener("click", (e) => {
+      const id = a.getAttribute("href");
+      const target = id === "#hero" || id === "#" ? 0 : document.querySelector(id);
+      if (target === null) return;
+      e.preventDefault();
+      if (reduced) { lenis.scrollTo(target, { immediate: true, force: true }); return; }
+      const y = target === 0 ? 0 : target.getBoundingClientRect().top + window.scrollY;
+      const dist = Math.abs(y - window.scrollY);
+      const duration = Math.min(2.6, Math.max(1, 0.9 + dist / (window.innerHeight * 8)));
+      lenis.scrollTo(target, { duration, easing: easeInOutCubic, force: true });
+    });
+  });
+  // "Pular para o conteúdo" leva o foco ao início do conteúdo sem depender da rolagem suave
+  document.querySelector(".skip")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    const main = document.getElementById("conteudo");
+    main.focus({ preventScroll: true });
+    lenis.scrollTo(main, { immediate: true });
+  });
+}
+
 /* ---------- Início ---------- */
+anchorLinks();
 work();
 why();
 reel();
@@ -1074,8 +1336,11 @@ fontsReady.then(() => {
     document.querySelectorAll("[data-manual]").forEach(runReveal);
     gsap.set(".hero__portrait", { opacity: 1, "--reveal": "125%" });
     gsap.set("#header", { opacity: 1 });
+    gsap.set("[data-hero-cta]", { opacity: 1 });
+    document.getElementById("loader")?.remove();
     lenis.start();
-  } else {
-    intro();
   }
 });
+// A tela de entrada começa na hora e espera as fontes em paralelo. Na revelação mede tudo de novo:
+// se a janela mudou de tamanho durante o carregamento, o hero já aparece com a altura certa.
+if (!reduced) loader(fontsReady, (fromLoader) => { ScrollTrigger.refresh(); intro(fromLoader); });
