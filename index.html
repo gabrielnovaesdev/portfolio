@@ -33,7 +33,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&display=swap" /></noscript>
   <link rel="preload" as="image" href="assets/hero-loop-poster.webp" fetchpriority="high" />
-  <link rel="stylesheet" href="styles.css?v=34" />
+  <link rel="stylesheet" href="styles.css?v=40" />
 </head>
 <body>
   <!-- Tela de entrada: "Bem-vindo ao portfólio de" e o nome, que voa até o logo do cabeçalho
@@ -71,20 +71,17 @@
       <a class="nav__link" href="#processo" data-i18n="nav.process">Processo</a>
       <a class="nav__link" href="#faq" data-i18n="nav.faq">Dúvidas</a>
     </nav>
-    <!-- Idioma: bandeira redonda + sigla. A pílula branca desliza até a opção escolhida (main.js) -->
+    <!-- Idioma: só as bandeiras (o nome do idioma fica no aria-label). O círculo branco desliza até a escolhida (main.js) -->
     <div class="lang" role="group" aria-label="Idioma" data-i18n-attr="aria-label: lang.label">
       <span class="lang__pill" aria-hidden="true"></span>
       <button type="button" data-lang="pt" lang="pt-BR" aria-label="Português">
         <span class="lang__flag" aria-hidden="true"><svg viewBox="4 0 20 20" preserveAspectRatio="xMidYMid slice"><rect x="0" width="12" height="20" fill="#046A38"/><rect x="12" width="18" height="20" fill="#DA291C"/><circle cx="12" cy="10" r="4.4" fill="none" stroke="#FFE900" stroke-width="1.5"/><path d="M10.1 7.4h3.8v3.6a1.9 1.9 0 0 1-3.8 0z" fill="#fff" stroke="#DA291C" stroke-width=".7"/><circle cx="12" cy="9.6" r=".7" fill="#0b3b8c"/></svg></span>
-        <span class="lang__code">PT</span>
       </button>
       <button type="button" data-lang="en" lang="en" aria-label="English">
         <span class="lang__flag" aria-hidden="true"><svg viewBox="0 0 20 20" preserveAspectRatio="xMidYMid slice"><rect width="20" height="20" fill="#fff"/><g fill="#B31942"><rect y="0" width="20" height="1.54"/><rect y="3.08" width="20" height="1.54"/><rect y="6.15" width="20" height="1.54"/><rect y="9.23" width="20" height="1.54"/><rect y="12.31" width="20" height="1.54"/><rect y="15.38" width="20" height="1.54"/><rect y="18.46" width="20" height="1.54"/></g><rect width="10" height="10.77" fill="#0A3161"/><g fill="#fff"><circle cx="2" cy="2" r=".6"/><circle cx="5" cy="2" r=".6"/><circle cx="8" cy="2" r=".6"/><circle cx="3.5" cy="4.3" r=".6"/><circle cx="6.5" cy="4.3" r=".6"/><circle cx="2" cy="6.6" r=".6"/><circle cx="5" cy="6.6" r=".6"/><circle cx="8" cy="6.6" r=".6"/><circle cx="3.5" cy="8.9" r=".6"/><circle cx="6.5" cy="8.9" r=".6"/></g></svg></span>
-        <span class="lang__code">EN</span>
       </button>
       <button type="button" data-lang="es" lang="es" aria-label="Español">
         <span class="lang__flag" aria-hidden="true"><svg viewBox="0 0 20 20" preserveAspectRatio="xMidYMid slice"><rect width="20" height="20" fill="#AA151B"/><rect y="5" width="20" height="10" fill="#F1BF00"/><rect x="4.2" y="7.3" width="3.4" height="4.6" rx="1.2" fill="#AA151B"/><rect x="4.9" y="8.1" width="2" height="1.4" fill="#F1BF00"/></svg></span>
-        <span class="lang__code">ES</span>
       </button>
     </div>
   </header>
@@ -332,6 +329,12 @@
       </div>
       <div class="footer__legal">
         <p>Copyright © Gabriel Novaes 2026</p>
+        <!-- Idioma no fim da página: nomes por extenso, cada um no próprio idioma, para quem chegou até aqui não precisar voltar ao topo -->
+        <div class="footer__langs" role="group" aria-label="Idioma" data-i18n-attr="aria-label: lang.label">
+          <button type="button" data-lang="pt" lang="pt-BR">Português</button>
+          <button type="button" data-lang="en" lang="en">English</button>
+          <button type="button" data-lang="es" lang="es">Español</button>
+        </div>
         <a class="footer__privacy" href="privacidade.html" data-i18n="privacy">Política de privacidade</a>
       </div>
     </div>
@@ -388,6 +391,6 @@
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <script src="projects.js?v=4"></script>
   <script src="i18n.js?v=2"></script>
-  <script src="main.js?v=33"></script>
+  <script src="main.js?v=36"></script>
 </body>
 </html>

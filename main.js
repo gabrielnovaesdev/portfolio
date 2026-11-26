@@ -91,13 +91,25 @@ function runReveal(wrap, mode) {
   const targets = [];
   wrap._splits = [];
   [...wrap.children].forEach((el) => {
+    // Texto inteiro para leitores de tela (o <br> vira espaço), antes de virar letras soltas
+    const tmp = document.createElement("div");
+    tmp.innerHTML = el.innerHTML.replace(/<br\s*\/?>/gi, " ");
+    const spoken = tmp.textContent.replace(/\s+/g, " ").trim();
+    // As letras animadas ficam escondidas do leitor de tela; o elemento (título, parágrafo) continua visível
+    // para ele e ganha uma cópia invisível do texto. Assim os títulos não somem da ordem h1 > h2 > h3.
+    const speak = () => {
+      el.removeAttribute("aria-hidden");
+      el.insertAdjacentHTML("beforeend", `<span class="sr-only">${spoken}</span>`);
+    };
     if (by === "lines") {
       const s = SplitText.create(el, { type: "lines", mask: "lines", linesClass: "line++", reduceWhiteSpace: false, aria: "hidden" });
       wrap._splits.push(s);
+      speak();
       targets.push(...s.lines);
     } else {
       const s = SplitText.create(el, { type: "lines,chars", mask: "chars", charsClass: "char++", reduceWhiteSpace: false, aria: "hidden" });
       wrap._splits.push(s);
+      speak();
       (s.masks || []).forEach((m) => {
         m.style.paddingInline = "0.04em";
         m.style.marginInline = "-0.04em";
@@ -219,10 +231,12 @@ function langSwitch() {
     gsap.timeline()
       .to(pill, { x: left, width: right - left, duration: 0.22, ease: "power2.out" })
       .to(pill, { x: to.x, width: to.w, duration: 0.7, ease: "elastic.out(1, 0.78)" });
+    // A bandeira escolhida gira de leve e assenta junto com a pílula
     gsap.fromTo(btn.querySelector(".lang__flag"), { rotate: to.x > cur.x ? -35 : 35, scale: 0.7 }, { rotate: 0, scale: 1, duration: 0.8, ease: "back.out(2.4)" });
     cur = to;
   };
-  buttons.forEach((b) => b.addEventListener("click", () => changeLang(b.dataset.lang)));
+  // Cabeçalho e rodapé: qualquer botão de idioma troca o site inteiro
+  document.querySelectorAll("[data-lang]").forEach((b) => b.addEventListener("click", () => changeLang(b.dataset.lang)));
   window.addEventListener("resize", () => moveLangPill(false));
   document.fonts?.ready.then(() => moveLangPill(false));
 }

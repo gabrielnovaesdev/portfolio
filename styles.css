@@ -6,6 +6,8 @@
   --white: #ffffff;
   --paper: #f4f4f2;
   --red: #e0141e;
+  /* Vermelho para texto sobre o fundo escuro: um pouco mais claro, para passar de 4,5:1 de contraste */
+  --red-text: #ff4d4f;
   --red-deep: #b30d16;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -215,35 +217,32 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 .header.is-blur { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .nav { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 2.4vw; }
 
-/* Idioma: bandeira redonda + sigla numa pílula de vidro. A pílula branca (.lang__pill) desliza até a opção atual */
+/* Idioma: só as bandeiras, redondas, numa pílula de vidro compacta. O círculo branco (.lang__pill) desliza até a atual */
 .lang {
-  position: relative; display: flex; gap: 2px; padding: 3px; border-radius: 999px;
+  position: relative; display: flex; gap: 1px; padding: 2px; border-radius: 999px;
   background: var(--glass-bg); box-shadow: var(--glass-shadow);
   -webkit-backdrop-filter: blur(6px) saturate(140%); backdrop-filter: blur(6px) saturate(140%);
 }
 .lang__pill {
-  position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 999px;
-  background: #fff; box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.35);
+  position: absolute; top: 2px; bottom: 2px; left: 0; width: 0; border-radius: 999px;
+  background: #fff; box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.35);
   pointer-events: none; will-change: transform, width;
 }
 .lang button {
-  position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 7px;
-  min-height: 36px; padding: 0 12px 0 6px; border: 0; border-radius: 999px;
-  background: transparent; color: rgba(255, 255, 255, 0.72);
-  font: inherit; font-size: max(13px, 0.85vw); letter-spacing: 0.04em; cursor: pointer;
-  transition: color 0.35s ease;
+  position: relative; z-index: 1; display: grid; place-items: center;
+  width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%;
+  background: transparent; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.lang button:hover { color: #fff; }
-.lang button[aria-pressed="true"] { color: #0a0a0a; cursor: default; }
-/* Bandeira recortada em círculo; o anel fino separa as cores claras do vidro e da pílula branca */
+.lang button[aria-pressed="true"] { cursor: default; }
+/* Bandeira recortada em círculo; o anel fino separa as cores claras do vidro e do círculo branco */
 .lang__flag {
-  width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.25);
+  width: 20px; height: 20px; border-radius: 50%; overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
   transition: filter 0.35s ease;
 }
 .lang__flag svg { display: block; width: 100%; height: 100%; }
-.lang button:not([aria-pressed="true"]) .lang__flag { filter: saturate(0.55) brightness(0.9); }
+.lang button:not([aria-pressed="true"]) .lang__flag { filter: saturate(0.5) brightness(0.85); }
 .lang button:hover .lang__flag { filter: none; }
 .nav__link {
   position: relative;
@@ -285,7 +284,7 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4.5vw 4vw 0; /* desconta a altura do cabeçalho para o título não colar no menu */
+  padding: 4.5vw 4vw clamp(16px, 2vw, 32px); /* desconta a altura do cabeçalho; embaixo, respiro mínimo */
   overflow: hidden;
   /* Mesma técnica da referência: camadas de luz radial sobre uma base vertical escura.
      Ponto quente (vermelho claro) embaixo à esquerda, corpo carmim à esquerda do retrato,
@@ -300,7 +299,8 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 }
 .hero__copy { width: 100%; height: fit-content; display: flex; justify-content: space-between; }
 .hero__title-wrap { width: 45%; line-height: 7.5rem; }
-.hero__title { font-size: 5.3vw; line-height: 1.1 !important; color: #fff; }
+/* Frase inteira: cresce com a tela até 84 px e para, para não dominar monitores grandes */
+.hero__title { font-size: clamp(2.5rem, 5.3vw, 5.25rem); line-height: 1.1 !important; color: #fff; }
 .hero__side {
   width: 10%;
   display: flex;
@@ -405,7 +405,7 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   align-items: center;
   justify-content: center;
   gap: min(4vw, 4vh);
-  padding: 0 4vw;
+  padding: clamp(16px, 3vh, 32px) 4vw; /* respiro em cima e embaixo do painel branco */
   overflow: hidden;
   background: var(--paper);
 }
@@ -760,9 +760,9 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   touch-action: pan-y;
 }
 .process__who { display: flex; flex-direction: column; gap: 0.4vw; }
-.process__name { font-size: 2.6vw; color: var(--red); line-height: 1.5; }
+.process__name { font-size: 2.6vw; color: var(--red-text); line-height: 1.5; }
 .process__role { font-size: 1.145vw; color: #fff; line-height: 1.5; }
-.process__quote { font-size: 1.145vw; line-height: 1.6; color: rgba(255, 255, 255, 0.7); width: 82%; }
+.process__quote { font-size: 1.145vw; line-height: 1.6; color: rgba(255, 255, 255, 0.7); width: 82%; text-wrap: pretty; }
 .process__avatars {
   position: absolute;
   top: -2vw;
@@ -868,6 +868,8 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 .faq__q.is-open .faq__icon b { transform: scale(1); }
 .faq__a { height: 0; overflow: hidden; }
 .faq__a-inner { padding-top: 1rem; padding-right: 3vw; width: 80%; }
+/* Linhas de leitura confortável (até ~75 caracteres) e sem palavra sozinha na última linha */
+.faq__a-inner p { max-width: 56ch; text-wrap: pretty; }
 .faq__a p { font-size: 1.25vw; line-height: 1.6; color: rgba(255, 255, 255, 0.8); }
 
 /* ===== Rodapé ===== */
@@ -913,7 +915,10 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 .social--line svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .footer__social li:hover .social__fill { transform: scale(1); }
 .footer__social li:hover .social svg { color: #070707; }
-.footer__legal { display: flex; justify-content: space-between; padding: 3rem 0 2rem; font-size: 1.125rem; line-height: 1.75rem; }
+/* Grade de 3 colunas: os idiomas ficam no centro fixo. Com flex + space-between eles andavam para o lado
+   quando o texto da política mudava de tamanho em outro idioma */
+.footer__legal { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1.5rem; padding: 3rem 0 2rem; font-size: 1.125rem; line-height: 1.75rem; }
+.footer__legal .footer__privacy { justify-self: end; text-align: end; }
 
 /* ===== Modal de contato ===== */
 /* Cabe numa tela só: tamanhos presos à altura (vh) além da largura, sem rolagem interna */
@@ -1021,6 +1026,20 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 .contact-form__note { font-size: 0.8rem; line-height: 1.4; color: rgba(255, 255, 255, 0.5); }
 .contact-form__note a { color: rgba(255, 255, 255, 0.75); text-decoration: underline; text-underline-offset: 2px; }
 .footer__privacy { color: inherit; text-decoration: none; transition: opacity 0.3s; }
+/* Idiomas no rodapé: texto simples, o atual em branco e sublinhado, os outros mais apagados */
+.footer__langs { display: flex; gap: 1.25rem; }
+.footer__langs button {
+  position: relative; padding: 0.25rem 0; border: 0; background: none; cursor: pointer;
+  font: inherit; color: rgba(255, 255, 255, 0.6); transition: color 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+.footer__langs button::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: right; transition: transform 0.5s var(--ease-out-expo);
+}
+.footer__langs button:hover { color: #fff; }
+.footer__langs button[aria-pressed="true"] { color: #fff; cursor: default; }
+.footer__langs button[aria-pressed="true"]::after { transform: scaleX(1); transform-origin: left; }
 .footer__privacy:hover { opacity: 0.7; }
 
 /* ===== Tablet (até 1025px) ===== */
@@ -1033,7 +1052,7 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   .btn__dot, .btn__end { width: 1.5vw; height: 1.5vw; }
   .btn__ghost, .btn__text { font-size: 3vw; }
 
-  .hero__stage { padding: 30vw 5vw 0; align-items: flex-start; }
+  .hero__stage { padding: 30vw 5vw clamp(16px, 4vw, 32px); align-items: flex-start; }
   .hero__copy { flex-direction: column; gap: 2rem; }
   .hero__title-wrap { width: 62%; }
   .nav { display: none; }
@@ -1046,7 +1065,7 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 
   .work { padding-top: min(30vw, 23vh); } /* aqui o arco sobe 50% e termina a 25vh */
   .work { --row-h: min(8vw, calc(58vh / var(--rows, 6))); }
-  .work__sticky { gap: min(3rem, 4vh); padding: 0 5vw; }
+  .work__sticky { gap: min(3rem, 4vh); padding: clamp(16px, 3vh, 32px) 5vw; }
   .work__title { font-size: min(6.5vw, 8vh); }
   .work__body { gap: 3vw; }
   .work__list { width: 40%; flex-shrink: 0; }
@@ -1124,7 +1143,7 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 /* Tablet deitado e telas largas e baixas (768–1025 px na horizontal): o layout de tablet é para a tela em pé
    e, deitado, o personagem cobria o título. Aqui volta a composição do desktop. */
 @media (min-width: 768px) and (max-width: 1025px) and (orientation: landscape) {
-  .hero__stage { padding: 4.5vw 4vw 0; align-items: center; }
+  .hero__stage { padding: 4.5vw 4vw clamp(16px, 2vw, 32px); align-items: center; }
   .hero__copy { flex-direction: row; gap: 0; }
   .hero__title-wrap { width: 45%; }
   .hero__title { font-size: 5.3vw; }
@@ -1148,9 +1167,6 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   .hero__side { font-size: 4.5vw; gap: 7vw; padding: 0; }
   /* Em telas estreitas o rosto chega até o texto lateral: o texto fica por cima, sem ser cortado */
   .hero__copy { position: relative; z-index: 1; }
-  /* No celular o seletor mostra só as bandeiras */
-  .lang__code { display: none; }
-  .lang button { padding: 0 6px; min-width: 36px; justify-content: center; }
   .hero__portrait { width: 240%; height: auto; top: auto; bottom: -30%; transform: translateX(-43.2%); scale: 1; }
   .hero__photo { position: relative; left: auto; bottom: auto; transform: none; display: block; width: 100%; height: auto; }
   .hero__tile { height: 55vw; }
@@ -1226,7 +1242,10 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   .footer__top { gap: 4rem; }
   .footer__cta { gap: 7vw; }
   .footer__cta p { font-size: 7.5vw; }
-  .footer__legal { flex-direction: column; gap: 0.5rem; font-size: 0.875rem; text-align: center; padding: 2rem 0 1.5rem; }
+  .footer__legal { grid-template-columns: 1fr; justify-items: center; gap: 0.5rem; font-size: 0.875rem; text-align: center; padding: 2rem 0 1.5rem; }
+  .footer__legal .footer__privacy { justify-self: center; text-align: center; }
+  .footer__langs { justify-content: center; gap: 1rem; }
+  .footer__langs button { min-height: 32px; }
 
   .modal { padding: 0.75rem; --pad: 1.25rem; --gap: clamp(0.5rem, 1.3vh, 0.75rem); }
   .modal__title { font-size: clamp(2rem, 9vw, 2.75rem); }
