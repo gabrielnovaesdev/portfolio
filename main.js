@@ -5,6 +5,11 @@
 // A chave é pública por natureza e não expõe o e-mail. Vazia: o formulário abre o GitHub.
 const WEB3FORMS_KEY = "8cb06e2a-4368-4c33-b000-097a60227387";
 
+// Outros canais de contato (rodapé e modal). Vazio: o link some do site.
+// WhatsApp só com números, com DDI e DDD (ex.: 5521999999999). Instagram sem o @.
+const WHATSAPP = "5521966588725";
+const INSTAGRAM = "gb__novaes";
+
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -900,6 +905,22 @@ function footer() {
   });
 }
 
+/* ---------- Canais de contato ---------- */
+function contactLinks() {
+  const links = {
+    whatsapp: WHATSAPP && `https://wa.me/${WHATSAPP.replace(/\D/g, "")}?text=${encodeURIComponent("Olá, Gabriel! Vim pelo seu portfólio.")}`,
+    instagram: INSTAGRAM && `https://instagram.com/${INSTAGRAM.replace(/^@/, "")}`,
+  };
+  document.querySelectorAll("[data-contact-link]").forEach((li) => {
+    const url = links[li.dataset.contactLink];
+    if (!url) { li.remove(); return; }
+    const a = li.querySelector("a");
+    a.href = url;
+    const handle = a.matches("[data-contact-handle]") ? a : null;
+    if (handle) handle.textContent = `@${INSTAGRAM.replace(/^@/, "")}`;
+  });
+}
+
 /* ---------- Modal de contato ---------- */
 function contactModal() {
   const modal = document.getElementById("contact-modal");
@@ -966,12 +987,25 @@ function contactModal() {
     return "";
   };
 
+  form.addEventListener("input", (e) => {
+    if (e.target.classList.contains("is-invalid") && e.target.value.trim()) e.target.classList.remove("is-invalid");
+  });
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (submit.disabled) return;
     if (!WEB3FORMS_KEY) {
       window.open("https://github.com/gabrielnovaesdev", "_blank", "noopener");
       close();
+      return;
+    }
+    // Validação própria, no lugar do balão padrão do navegador
+    const fields = [...form.querySelectorAll("input[required], textarea[required]")];
+    const bad = fields.filter((el) => !el.value.trim() || !el.checkValidity());
+    fields.forEach((el) => el.classList.toggle("is-invalid", bad.includes(el)));
+    if (bad.length) {
+      const onlyEmail = bad.length === 1 && bad[0].name === "email" && bad[0].value.trim();
+      setStatus(onlyEmail ? "Confira o seu e-mail." : "Preencha todos os campos para enviar.", "error");
+      bad[0].focus();
       return;
     }
     const f = new FormData(form);
@@ -1023,6 +1057,7 @@ stack();
 processCarousel();
 faq();
 footer();
+contactLinks();
 contactModal();
 headerBehavior();
 heroScroll();
