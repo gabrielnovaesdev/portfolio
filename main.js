@@ -641,6 +641,19 @@ function headerBehavior() {
   };
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
+
+  // Durante o reel (do vídeo abrindo até Serviços cobrir a tela) o cabeçalho não aparece, nem rolando para cima
+  let locked = false;
+  ScrollTrigger.create({
+    trigger: "#reel", start: "top top", end: "bottom bottom",
+    onToggle: (self) => {
+      locked = self.isActive;
+      if (locked) { hidden = true; gsap.to(header, { yPercent: -100, duration: 0.4, ease: "power3.out" }); }
+    },
+  });
+  const guard = onScroll;
+  window.removeEventListener("scroll", onScroll);
+  window.addEventListener("scroll", () => { if (locked) { last = window.scrollY; return; } guard(); }, { passive: true });
 }
 
 /* ---------- Projetos selecionados ---------- */
@@ -828,10 +841,13 @@ function reel() {
   if (reduced) {
     gsap.set(frame, { clipPath: "inset(0px 0px 0px 0px round 0px)" });
     gsap.set(words, { opacity: 0 });
+    gsap.set("#servicos", { borderRadius: 0 });
   } else {
     gsap.set(frame, { clipPath: cardInset() });
+    // Abertura: 1,6 tela de rolagem (o cartão vira tela cheia e fica um tempo assim).
+    // A última tela da seção é da saída: Serviços sobe por cima do vídeo parado.
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: section, start: "top top", end: "bottom bottom", scrub: true, invalidateOnRefresh: true },
+      scrollTrigger: { trigger: section, start: "top top", end: () => `+=${Math.round(window.innerHeight * 1.6)}`, scrub: true, invalidateOnRefresh: true },
     });
     tl.fromTo(frame, { clipPath: () => cardInset() }, { clipPath: "inset(0px 0px 0px 0px round 0px)", ease: "power2.inOut", duration: 0.7 }, 0)
       .fromTo(vid, { scale: 1.25 }, { scale: 1, ease: "power2.inOut", duration: 0.7 }, 0)
@@ -839,17 +855,17 @@ function reel() {
       .to(words[1], { xPercent: 60, opacity: 0, ease: "power2.in", duration: 0.55 }, 0)
       .to({}, { duration: 0.3 });
 
-    // Saída: o vídeo volta a ser um cartão e escurece enquanto sobe, em vez de sair cortado
-    const exitInset = () => {
-      const x = Math.round(window.innerWidth * 0.06);
-      const y = Math.round(window.innerHeight * 0.08);
-      return `inset(${y}px ${x}px ${y}px ${x}px round 16px)`;
-    };
-    const exit = gsap.timeline({
-      scrollTrigger: { trigger: section, start: "bottom bottom", end: "bottom 15%", scrub: true, invalidateOnRefresh: true },
+    // Saída: o vídeo fica parado e Serviços sobe por cima como uma folha escura de cantos arredondados.
+    // Enquanto isso o vídeo recua, ganha cantos e escurece (profundidade); a folha endireita os cantos ao chegar no topo.
+    const cover = { trigger: "#servicos", start: "top bottom", end: "top top", scrub: true, invalidateOnRefresh: true };
+    gsap.timeline({ scrollTrigger: cover })
+      .fromTo(frame, { scale: 1, clipPath: "inset(0px 0px 0px 0px round 0px)" },
+        { scale: 0.86, clipPath: "inset(0px 0px 0px 0px round 28px)", ease: "power1.inOut", immediateRender: false }, 0)
+      .fromTo(vid, { filter: "brightness(1)" }, { filter: "brightness(0.3)", ease: "none", immediateRender: false }, 0);
+    gsap.fromTo("#servicos", { borderTopLeftRadius: 32, borderTopRightRadius: 32 }, {
+      borderTopLeftRadius: 0, borderTopRightRadius: 0, ease: "power2.in",
+      scrollTrigger: { trigger: "#servicos", start: "top 35%", end: "top top", scrub: true },
     });
-    exit.fromTo(frame, { clipPath: "inset(0px 0px 0px 0px round 0px)" }, { clipPath: exitInset, ease: "power1.inOut", immediateRender: false }, 0)
-      .fromTo(vid, { filter: "brightness(1)" }, { filter: "brightness(0.35)", ease: "none", immediateRender: false }, 0);
   }
 
   if (LITE) return;

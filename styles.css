@@ -540,7 +540,8 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 }
 
 /* ===== Reel ===== */
-.reel { position: relative; width: 100vw; height: 260vh; background: #070707; color: #fff; }
+/* 360vh: 1,6 tela para o cartão abrir e ficar em tela cheia + 1 tela em que Serviços sobe por cima do vídeo parado */
+.reel { position: relative; width: 100vw; height: 360vh; background: #070707; color: #fff; }
 .reel__sticky {
   position: sticky;
   top: 0;
@@ -573,7 +574,14 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 .reel__video { width: 100%; height: 100%; object-fit: cover; transform-origin: center; }
 
 /* ===== Serviços ===== */
-.services { position: relative; width: 100vw; height: 275vh; background: #070707; color: #fff; }
+/* Sobe por cima da última tela do reel (margem negativa), com cantos que endireitam ao chegar no topo (main.js) */
+.services {
+  position: relative; z-index: 3; width: 100vw; height: 275vh; margin-top: -100vh;
+  background: #070707; color: #fff;
+  border-radius: 32px 32px 0 0;
+  box-shadow: 0 -24px 60px -20px rgba(0, 0, 0, 0.7);
+}
+.reel__frame { transform-origin: 50% 40%; }
 .services__intro { position: relative; width: 60%; padding: 6vw 4vw 0; }
 .services__text { width: 75%; margin-top: 1.5vw; font-size: 1.25vw; line-height: 1.5; }
 .services__sticky {
