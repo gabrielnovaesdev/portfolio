@@ -50,6 +50,8 @@ main:focus { outline: none; }
 .btn:active, .round-btn:active, .channel:active, .modal__close:active, .social:active { transform: scale(0.96); }
 
 html.lenis, html.lenis body { height: auto; }
+/* A rolagem é do Lenis: o ajuste automático do navegador (scroll anchoring) brigava com ele quando os textos trocam de idioma */
+html { overflow-anchor: none; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: hidden; }
 
@@ -212,6 +214,37 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 }
 .header.is-blur { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .nav { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 2.4vw; }
+
+/* Idioma: bandeira redonda + sigla numa pílula de vidro. A pílula branca (.lang__pill) desliza até a opção atual */
+.lang {
+  position: relative; display: flex; gap: 2px; padding: 3px; border-radius: 999px;
+  background: var(--glass-bg); box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(6px) saturate(140%); backdrop-filter: blur(6px) saturate(140%);
+}
+.lang__pill {
+  position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 999px;
+  background: #fff; box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.35);
+  pointer-events: none; will-change: transform, width;
+}
+.lang button {
+  position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 7px;
+  min-height: 36px; padding: 0 12px 0 6px; border: 0; border-radius: 999px;
+  background: transparent; color: rgba(255, 255, 255, 0.72);
+  font: inherit; font-size: max(13px, 0.85vw); letter-spacing: 0.04em; cursor: pointer;
+  transition: color 0.35s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.lang button:hover { color: #fff; }
+.lang button[aria-pressed="true"] { color: #0a0a0a; cursor: default; }
+/* Bandeira recortada em círculo; o anel fino separa as cores claras do vidro e da pílula branca */
+.lang__flag {
+  width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.25);
+  transition: filter 0.35s ease;
+}
+.lang__flag svg { display: block; width: 100%; height: 100%; }
+.lang button:not([aria-pressed="true"]) .lang__flag { filter: saturate(0.55) brightness(0.9); }
+.lang button:hover .lang__flag { filter: none; }
 .nav__link {
   position: relative;
   padding: 0.6rem 0;
@@ -267,7 +300,7 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 }
 .hero__copy { width: 100%; height: fit-content; display: flex; justify-content: space-between; }
 .hero__title-wrap { width: 45%; line-height: 7.5rem; }
-.hero__title { font-size: 7.5vw; line-height: 1.1 !important; color: #fff; }
+.hero__title { font-size: 5.3vw; line-height: 1.1 !important; color: #fff; }
 .hero__side {
   width: 10%;
   display: flex;
@@ -296,19 +329,10 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   mask-image: linear-gradient(to top left, black var(--reveal), transparent calc(var(--reveal) + 25%));
 }
 .hero__portrait-inner { width: 100%; height: 100%; }
-.hero__portrait img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+/* Foto (o primeiro quadro do vídeo), vídeo em loop e canvas do halftone ocupam exatamente a mesma caixa:
+   recorte 1120x880; a caixa do retrato tem 121% da tela e sai 15,5% para baixo; 100,8% dela = 122% da tela */
+.hero__photo, .hero__video, .hero__fx {
   user-select: none;
-  pointer-events: none;
-  /* Os ombros terminam na borda da foto: some aos poucos em vez de cortar reto */
-  -webkit-mask-image: linear-gradient(to right, transparent 32%, #000 40%, #000 60%, transparent 68%);
-  mask-image: linear-gradient(to right, transparent 32%, #000 40%, #000 60%, transparent 68%);
-}
-/* Vídeo em loop (recorte 1120x880 do 16:9): mesma altura de cabeça da foto. A caixa do retrato tem 121% da tela
-   e sai 15,5% para baixo; 100,8% dela = 122% da tela, com a base 1,7% abaixo da caixa */
-.hero__video, .hero__fx {
   position: absolute;
   left: 50%;
   bottom: -1.7%;
@@ -327,7 +351,8 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
    Com o canvas pronto, o vídeo segue tocando por baixo, só que invisível. */
 .hero__portrait.has-fx .hero__video { opacity: 0; transition: none; }
 .hero__portrait.has-fx .hero__fx { opacity: 1; transition: none; }
-.hero__portrait.has-video img { opacity: 0; transition: opacity 0.6s ease-out; }
+.hero__photo { opacity: 1; }
+.hero__portrait.has-video .hero__photo { opacity: 0; transition: opacity 0.6s ease-out; }
 .hero__wall { position: absolute; inset: 0; width: 100%; height: 100%; background: #070707; }
 .hero__wall-sticky {
   position: sticky;
@@ -1013,10 +1038,9 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   .hero__title-wrap { width: 62%; }
   .nav { display: none; }
   .hero__cta { margin-top: 4vw; }
-  .hero__title { font-size: 12vw; }
+  .hero__title { font-size: 6.8vw; }
   .hero__side { width: 40%; font-size: 3.5vw; text-align: start; flex-direction: column-reverse; gap: 5rem; }
   .hero__portrait { width: 100%; transform: translateX(-40%); scale: 1; }
-  .hero__portrait img { -webkit-mask-image: none; mask-image: none; }
   .hero__tile { height: 45vw; }
 
 
@@ -1093,7 +1117,8 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
 /* ===== Celular ===== */
 /* Tablet em pé: o personagem desce e encolhe para ficar abaixo do título e do botão, como no celular */
 @media (min-width: 768px) and (max-width: 1025px) and (orientation: portrait) {
-  .hero__portrait { width: 96%; height: auto; top: auto; bottom: -25%; transform: translateX(-27%); }
+  .hero__portrait { width: 144%; height: auto; top: auto; bottom: -25%; transform: translateX(-34.5%); }
+  .hero__photo { position: relative; left: auto; bottom: auto; transform: none; display: block; width: 100%; height: auto; }
 }
 
 /* Tablet deitado e telas largas e baixas (768–1025 px na horizontal): o layout de tablet é para a tela em pé
@@ -1102,14 +1127,10 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   .hero__stage { padding: 4.5vw 4vw 0; align-items: center; }
   .hero__copy { flex-direction: row; gap: 0; }
   .hero__title-wrap { width: 45%; }
-  .hero__title { font-size: 7.5vw; }
+  .hero__title { font-size: 5.3vw; }
   .hero__cta { margin-top: 2vw; }
   .hero__side { width: 14%; font-size: 1.6vw; text-align: end; flex-direction: column; gap: 0; }
   .hero__portrait { width: 180%; transform: translateX(-46.5%); scale: 0.88; }
-  .hero__portrait img {
-    -webkit-mask-image: linear-gradient(to right, transparent 32%, #000 40%, #000 60%, transparent 68%);
-    mask-image: linear-gradient(to right, transparent 32%, #000 40%, #000 60%, transparent 68%);
-  }
 }
 
 @media (max-width: 767px) {
@@ -1122,10 +1143,16 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   .btn__ghost, .btn__text { font-size: 4.2vw; }
 
   .hero__title-wrap { width: 100%; }
-  .hero__cta { display: none; } /* no celular o botão do cabeçalho já está na tela: sem ação repetida */
-  .hero__title { font-size: 15vw; }
+  .hero__cta { margin-top: 6vw; }
+  .hero__title { font-size: 11vw; }
   .hero__side { font-size: 4.5vw; gap: 7vw; padding: 0; }
-  .hero__portrait { width: 160%; height: auto; top: auto; bottom: -30%; transform: translateX(-40%); scale: 1; }
+  /* Em telas estreitas o rosto chega até o texto lateral: o texto fica por cima, sem ser cortado */
+  .hero__copy { position: relative; z-index: 1; }
+  /* No celular o seletor mostra só as bandeiras */
+  .lang__code { display: none; }
+  .lang button { padding: 0 6px; min-width: 36px; justify-content: center; }
+  .hero__portrait { width: 240%; height: auto; top: auto; bottom: -30%; transform: translateX(-43.2%); scale: 1; }
+  .hero__photo { position: relative; left: auto; bottom: auto; transform: none; display: block; width: 100%; height: auto; }
   .hero__tile { height: 55vw; }
 
   .work { --row-h: min(8vw, calc(38vh / var(--rows, 6))); }

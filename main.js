@@ -14,11 +14,16 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 
 // Vidro líquido: só Chrome/Edge (Chromium) aplicam filtro SVG dentro do backdrop-filter.
 // Nos outros navegadores os botões ficam com o vidro fosco, sem a refração.
-if (/Chrome|Chromium|Edg\//.test(navigator.userAgent) && !/Firefox|FxiOS/.test(navigator.userAgent)) {
+// Celular e tablet (tela de toque ou até 767 px): sem vídeo nenhum e sem o filtro de refração,
+// que pesam no processador e na bateria. Ficam as fotos e os pôsteres.
+const LITE = window.matchMedia("(hover: none) and (pointer: coarse), (max-width: 767px)").matches;
+if (LITE) document.documentElement.classList.add("is-lite");
+if (!LITE && /Chrome|Chromium|Edg\//.test(navigator.userAgent) && !/Firefox|FxiOS/.test(navigator.userAgent)) {
   document.documentElement.classList.add("lg-refract");
 }
 
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const { t } = window.I18N;
 const isDesktop = () => window.innerWidth > 1025;
 const PROJECTS = window.PROJECTS || [];
 const poster = (p) => `assets/projects/${p.slug}.jpg`;
@@ -26,11 +31,18 @@ const video = (p) => `assets/projects/${p.slug}.mp4`;
 const linkOf = (p) => p.live || p.repo;
 
 /* ---------- Rolagem suave ---------- */
-if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-window.scrollTo(0, 0);
-window.addEventListener("load", () => window.scrollTo(0, 0));
+// O ScrollTrigger guarda a posição da rolagem e devolve o navegador ao modo "auto" ao recarregar,
+// e aí o F5 abria o site no meio da página. clearScrollMemory("manual") apaga essa memória e fixa o modo manual.
+const toTop = () => {
+  ScrollTrigger.clearScrollMemory("manual");
+  window.scrollTo(0, 0);
+  lenis?.scrollTo(0, { immediate: true, force: true });
+};
+let lenis;
+toTop();
+window.addEventListener("load", toTop);
 
-const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
 lenis.on("scroll", ScrollTrigger.update);
 gsap.ticker.add((t) => lenis.raf(t * 1000));
 gsap.ticker.lagSmoothing(0);
@@ -70,18 +82,22 @@ document.querySelectorAll("[data-btn]").forEach(buildButton);
 
 /* ---------- Texto que sobe letra a letra (ou linha a linha) ---------- */
 const directions = { bottom: { yPercent: 100, xPercent: 0, rotate: 0 } };
-function runReveal(wrap) {
+// mode: undefined = espera a rolagem; "now" = toca já (troca de idioma); "done" = aparece pronto
+function runReveal(wrap, mode) {
   if (wrap._revealed) return;
   wrap._revealed = true;
   const by = wrap.dataset.reveal || "chars";
   const stagger = wrap.dataset.stagger ? parseFloat(wrap.dataset.stagger) : by === "lines" ? 0.1 : 0.03;
   const targets = [];
+  wrap._splits = [];
   [...wrap.children].forEach((el) => {
     if (by === "lines") {
       const s = SplitText.create(el, { type: "lines", mask: "lines", linesClass: "line++", reduceWhiteSpace: false, aria: "hidden" });
+      wrap._splits.push(s);
       targets.push(...s.lines);
     } else {
       const s = SplitText.create(el, { type: "lines,chars", mask: "chars", charsClass: "char++", reduceWhiteSpace: false, aria: "hidden" });
+      wrap._splits.push(s);
       (s.masks || []).forEach((m) => {
         m.style.paddingInline = "0.04em";
         m.style.marginInline = "-0.04em";
@@ -90,21 +106,125 @@ function runReveal(wrap) {
       targets.push(...s.chars);
     }
   });
+  wrap._targets = targets;
   if (reduced) {
+    if (mode) { gsap.set(wrap, { opacity: 1, y: 0 }); return; }
     gsap.set(wrap, { opacity: 0, y: 24 });
     gsap.to(wrap, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out", scrollTrigger: { trigger: wrap, start: "top 85%", once: true } });
     return;
   }
   gsap.set(wrap, { opacity: 1 });
-  gsap.fromTo(
+  if (mode === "done") { gsap.set(targets, { yPercent: 0, xPercent: 0, rotate: 0, opacity: 1 }); wrap._tween = null; return; }
+  wrap._tween = gsap.fromTo(
     targets,
     { ...directions.bottom, willChange: "transform" },
     {
       yPercent: 0, xPercent: 0, rotate: 0, opacity: 1,
-      duration: 0.5, stagger, ease: "power3.out",
-      scrollTrigger: { trigger: wrap, start: "top 85%", end: "bottom 68%" },
+      duration: 0.5, stagger: mode === "now" ? Math.min(stagger, 0.012) : stagger, ease: "power3.out",
+      ...(mode === "now" ? {} : { scrollTrigger: { trigger: wrap, start: "top 85%", end: "bottom 68%" } }),
     }
   );
+}
+
+/* ---------- Troca de idioma sem recarregar ----------
+   O personagem, o vídeo, a rolagem e tudo que não é texto ficam onde estão. Só os textos trocam:
+   - texto que entrou letra a letra (ou linha a linha) sai pelo alto e o novo sobe pela mesma máscara;
+   - o resto esmaece rápido, troca e volta. Fora da tela a troca é direta, sem animação. */
+const langHooks = [];
+const inView = (el) => {
+  const r = el.getBoundingClientRect();
+  return r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth && r.width > 0;
+};
+function swapText(el, html, { asText = false } = {}) {
+  const set = () => { if (asText) el.textContent = html; else el.innerHTML = html; };
+  if ((asText ? el.textContent : el.innerHTML) === html) return;
+  if (reduced || !inView(el)) { set(); return; }
+  gsap.killTweensOf(el, "opacity,y");
+  gsap.to(el, {
+    opacity: 0, y: -10, duration: 0.22, ease: "power2.in",
+    onComplete: () => { set(); gsap.fromTo(el, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out", clearProps: "transform" }); },
+  });
+}
+// Texto dentro de um bloco .reveal: desfaz o recorte, troca e recorta de novo no idioma novo
+function relang(wrap, apply) {
+  if (!wrap._revealed) { apply(); return; }
+  const tw = wrap._tween;
+  const shown = !tw || tw.progress() > 0;
+  const redo = (mode) => {
+    if (tw) { tw.scrollTrigger?.kill(); tw.kill(); }
+    (wrap._splits || []).forEach((sp) => sp.revert());
+    wrap._splits = []; wrap._revealed = false; wrap._tween = null;
+    apply();
+    runReveal(wrap, mode);
+  };
+  if (!shown) { redo(); return; }
+  if (reduced || !inView(wrap)) { redo("done"); return; }
+  gsap.to(wrap._targets, {
+    yPercent: -110, duration: 0.28, ease: "power2.in", stagger: 0.006, overwrite: true,
+    onComplete: () => redo("now"),
+  });
+}
+function changeLang(next) {
+  if (!I18N.set(next)) return;
+  moveLangPill(true);
+  // Âncora: a seção no topo da tela continua no mesmo lugar depois que os textos mudarem de tamanho
+  const anchor = [...document.querySelectorAll("main > section, footer")].find((sec) => sec.getBoundingClientRect().bottom > 0);
+  const anchorTop = anchor?.getBoundingClientRect().top ?? 0;
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const html = t(el.dataset.i18n);
+    const wrap = el.parentElement?.classList.contains("reveal") ? el.parentElement : null;
+    if (wrap) relang(wrap, () => { el.innerHTML = html; });
+    else swapText(el, html);
+  });
+  document.querySelectorAll("[data-i18n-btn]:not([data-reel-sound])").forEach((el) => {
+    el.dataset.btn = t(el.dataset.i18nBtn);
+    if (reduced || !inView(el)) { buildButton(el); return; }
+    gsap.to(el.querySelectorAll(".btn__text > span > span"), {
+      yPercent: -110, opacity: 0, duration: 0.2, stagger: 0.008, ease: "power2.in",
+      onComplete: () => {
+        buildButton(el);
+        gsap.from(el.querySelectorAll(".btn__text > span > span"), { yPercent: 110, opacity: 0, duration: 0.45, stagger: 0.012, ease: "power3.out" });
+      },
+    });
+  });
+  langHooks.forEach((fn) => fn());
+  // As alturas dos textos mudaram: recalcula as animações de rolagem quando tudo assentar
+  gsap.delayedCall(0.9, () => {
+    ScrollTrigger.refresh();
+    if (!anchor) return;
+    const diff = anchor.getBoundingClientRect().top - anchorTop;
+    if (Math.abs(diff) > 1) lenis.scrollTo(window.scrollY + diff, { immediate: true, force: true });
+  });
+}
+
+/* ---------- Seletor de idioma: a pílula branca escorrega até a bandeira escolhida ----------
+   Na troca ela se estica cobrindo as duas opções e depois se recolhe na nova, com uma mola suave
+   (o mesmo gesto dos "tabs" animados do 21st.dev); a bandeira escolhida gira de leve e assenta. */
+let moveLangPill = () => {};
+function langSwitch() {
+  const box = document.querySelector(".lang");
+  if (!box) return;
+  const pill = box.querySelector(".lang__pill");
+  const buttons = [...box.querySelectorAll("[data-lang]")];
+  const place = (b) => ({ x: b.offsetLeft, w: b.offsetWidth });
+  let cur = place(buttons.find((b) => b.dataset.lang === I18N.lang) || buttons[0]);
+  gsap.set(pill, { x: cur.x, width: cur.w });
+  moveLangPill = (animate) => {
+    const btn = buttons.find((b) => b.dataset.lang === I18N.lang);
+    const to = place(btn);
+    gsap.killTweensOf(pill);
+    if (!animate || reduced) { gsap.set(pill, { x: to.x, width: to.w }); cur = to; return; }
+    const left = Math.min(cur.x, to.x);
+    const right = Math.max(cur.x + cur.w, to.x + to.w);
+    gsap.timeline()
+      .to(pill, { x: left, width: right - left, duration: 0.22, ease: "power2.out" })
+      .to(pill, { x: to.x, width: to.w, duration: 0.7, ease: "elastic.out(1, 0.78)" });
+    gsap.fromTo(btn.querySelector(".lang__flag"), { rotate: to.x > cur.x ? -35 : 35, scale: 0.7 }, { rotate: 0, scale: 1, duration: 0.8, ease: "back.out(2.4)" });
+    cur = to;
+  };
+  buttons.forEach((b) => b.addEventListener("click", () => changeLang(b.dataset.lang)));
+  window.addEventListener("resize", () => moveLangPill(false));
+  document.fonts?.ready.then(() => moveLangPill(false));
 }
 
 /* ---------- Hero: vitrine atrás (pôsteres dos projetos em duas colunas que sobem sem parar) ---------- */
@@ -245,7 +365,7 @@ void main(){
 
 /* ---------- Hero: loop do Gabriel virando a cabeça ---------- */
 // Só onde dá para mostrar o fundo transparente: Chrome, Edge e Firefox (VP9 com alfa).
-// Safari, celular e quem prefere menos movimento ficam com a foto.
+// Safari, celular, tablet e quem prefere menos movimento ficam com a foto.
 function heroVideo() {
   const vid = document.querySelector(".hero__video");
   const box = document.querySelector(".hero__portrait");
@@ -253,7 +373,7 @@ function heroVideo() {
   const ua = navigator.userAgent;
   const safari = /Safari/.test(ua) && !/Chrome|Chromium|Edg|Firefox|FxiOS|CriOS/.test(ua);
   const vp9 = vid.canPlayType('video/webm; codecs="vp9"');
-  if (reduced || safari || !vp9 || window.innerWidth <= 767) { vid.remove(); return; }
+  if (reduced || LITE || safari || !vp9) { vid.remove(); return; }
   vid.preload = "auto";
   vid.addEventListener("playing", () => box.classList.add("has-video"), { once: true });
 
@@ -325,13 +445,10 @@ function heroVideo() {
    1. Tela neutra: "Bem-vindo ao portfólio de" sobe palavra por palavra, depois o nome letra por letra
    2. Uma linha vermelha fina acompanha o carregamento (fontes e página)
    3. Saída: o nome encolhe e voa até o logo do cabeçalho, a cortina sobe em arco e o hero começa por baixo
-   Só na primeira visita da sessão; quem prefere menos movimento entra direto. */
+   Aparece em todo carregamento; quem prefere menos movimento entra direto. */
 function loader(pageReady, start) {
   const el = document.getElementById("loader");
-  let seen = false;
-  try { seen = sessionStorage.getItem("gn-intro") === "1"; } catch {}
-  if (!el || seen) { el?.remove(); pageReady.then(() => start(false)); return; }
-  try { sessionStorage.setItem("gn-intro", "1"); } catch {}
+  if (!el) { pageReady.then(() => start(false)); return; }
 
   const wrapChars = (node, byWord) => {
     node.querySelectorAll(":scope > span").length
@@ -342,8 +459,38 @@ function loader(pageReady, start) {
   const hello = el.querySelector("[data-loader-hello]");
   const name = el.querySelector("[data-loader-name]");
   const bar = el.querySelector("[data-loader-bar]");
+  // Guarda o texto puro do nome: na saída ele volta a ser texto corrido, igual ao logo do cabeçalho
+  const nameParts = [...name.children].map((s) => s.textContent);
   wrapChars(hello, true);
   wrapChars(name, false);
+
+  // Cada letra num bloco perde o kerning (o "VA" de NOVAES abre). Mede onde cada letra fica no texto corrido,
+  // igual ao logo, e corrige a margem de cada bloco: o nome entra e pousa com o mesmo espaçamento
+  function kern() {
+    const plain = name.cloneNode(false);
+    plain.innerHTML = nameParts.map((txt, i) => `<span class="${name.children[i].className}">${txt}</span>`).join("");
+    plain.style.cssText = "position:absolute;visibility:hidden;left:0;top:0";
+    name.parentNode.appendChild(plain);
+    const lefts = [];
+    let end = 0;
+    plain.querySelectorAll("span").forEach((sp) => {
+      const node = sp.firstChild;
+      const r = document.createRange();
+      for (let i = 0; i < node.length; i += 1) {
+        r.setStart(node, i); r.setEnd(node, i + 1);
+        const b = r.getBoundingClientRect();
+        lefts.push(b.left);
+        end = b.right;
+      }
+    });
+    plain.remove();
+    const boxes = [...name.querySelectorAll(".loader__w")];
+    boxes.forEach((b) => { b.style.marginRight = "0px"; });
+    boxes.forEach((b, i) => {
+      const step = (i + 1 < lefts.length ? lefts[i + 1] : end) - lefts[i];
+      b.style.marginRight = `${(step - b.getBoundingClientRect().width).toFixed(3)}px`;
+    });
+  }
 
   const t0 = performance.now();
   const ready = Promise.race([
@@ -358,6 +505,7 @@ function loader(pageReady, start) {
   const fontIn = document.fonts ? document.fonts.load('400 1em "Host Grotesk"').catch(() => {}) : Promise.resolve();
   const enter = gsap.timeline({ paused: true });
   Promise.race([fontIn, new Promise((r) => setTimeout(r, 600))]).then(() => {
+    kern();
     gsap.set(el.querySelector(".loader__inner"), { opacity: 1 });
     enter.play();
   });
@@ -373,22 +521,30 @@ function loader(pageReady, start) {
   function leave() {
     const header = document.getElementById("header");
     const logo = header.querySelector(".logo");
+    const rest = [...header.children].filter((c) => c !== logo);
+    // As letras viram texto corrido de novo: mesmo kerning do logo, sem salto na troca
+    [...name.children].forEach((s, i) => { s.textContent = nameParts[i]; });
     const from = name.getBoundingClientRect();
     const to = logo.getBoundingClientRect();
     const s = to.width / from.width;
+    gsap.set(header, { opacity: 1, yPercent: 0 });
+    gsap.set(logo, { opacity: 0 });
+    gsap.set(rest, { opacity: 0 });
+
     const tl = gsap.timeline({ onComplete: () => { el.remove(); lenis.start(); } });
     tl.to(bar, { scaleX: 1, duration: 0.35, ease: "power2.inOut" }, 0)
       .to([hello, bar.parentNode], { opacity: 0, y: -16, duration: 0.5, ease: "power2.in" }, 0.25)
-      // O nome vira o logo: mesma fonte, só muda posição e escala
-      .to(name, { x: to.left - from.left, y: to.top - from.top, scale: s, duration: 1.15, ease: "power4.inOut" }, 0.35)
-      .to(name.querySelectorAll(".logo__muted .loader__w > span"), { color: "#afafaf", duration: 0.6 }, 0.6)
+      // O nome vira o logo: mesma fonte, só muda posição e escala. x e y com curvas diferentes desenham um arco
+      .to(name, { x: to.left - from.left, duration: 1.2, ease: "power3.inOut" }, 0.35)
+      .to(name, { y: to.top - from.top, scale: s, duration: 1.2, ease: "expo.inOut" }, 0.35)
       // Cortina em arco subindo e o hero começando por baixo dela
       .to(el.querySelector(".loader__bg"), { yPercent: -100, duration: 1.25, ease: "power4.inOut" }, 0.45)
       .call(() => start(true), undefined, 0.75)
-      // Troca do nome pelo logo de verdade, sem salto
-      .set(header, { yPercent: 0 }, 1.45)
-      .to(header, { opacity: 1, duration: 0.45, ease: "power1.out" }, 1.45)
-      .to(name, { opacity: 0, duration: 0.3 }, 1.7);
+      // Troca no mesmo quadro em que o nome pousa: o logo de verdade assume, sem esmaecer um sobre o outro
+      .set(logo, { opacity: 1 }, 1.55)
+      .set(name, { opacity: 0 }, 1.55)
+      // Menu e idiomas entram depois, um de cada vez
+      .to(rest, { opacity: 1, duration: 0.6, ease: "power2.out", stagger: 0.12 }, 1.4);
   }
 }
 
@@ -489,18 +645,24 @@ function work() {
       <span class="work__dot"></span>
       <div>
         <h3>${p.name}</h3>
-        <p>${p.kind.split(" · ").join("  •  ")}</p>
+        <p>${I18N.kind(p).split(" · ").join("  •  ")}</p>
       </div>
     </div>`).join("");
 
   media.innerHTML = PROJECTS.map((p, i) => `
-    <a class="work__slide${p.device === "phone" ? " work__slide--phone" : ""}" style="z-index:${i + 1}" href="${linkOf(p)}" target="_blank" rel="noopener" aria-label="Abrir ${p.name}">
-      <video src="${video(p)}" poster="${poster(p)}" muted loop playsinline preload="${i === 0 ? "auto" : "metadata"}"></video>
+    <a class="work__slide${p.device === "phone" ? " work__slide--phone" : ""}" style="z-index:${i + 1}" href="${linkOf(p)}" target="_blank" rel="noopener" aria-label="${t("work.open", { name: p.name })}">
+      ${LITE
+        ? `<img src="${poster(p)}" alt="" width="1280" height="800" loading="${i === 0 ? "eager" : "lazy"}" decoding="async" />`
+        : `<video src="${video(p)}" poster="${poster(p)}" muted loop playsinline preload="${i === 0 ? "auto" : "metadata"}"></video>`}
     </a>`).join("");
 
+  langHooks.push(() => {
+    list.querySelectorAll(".work__item p").forEach((el, i) => swapText(el, I18N.kind(PROJECTS[i]).split(" · ").join("  •  "), { asText: true }));
+    media.querySelectorAll(".work__slide").forEach((a, i) => a.setAttribute("aria-label", t("work.open", { name: PROJECTS[i].name })));
+  });
   const dots = [...list.querySelectorAll(".work__dot")];
   const slides = [...media.querySelectorAll(".work__slide")];
-  const videos = slides.map((s) => s.querySelector("video"));
+  const videos = slides.map((s) => s.querySelector("video")).filter(Boolean);
   const steps = PROJECTS.length - 1;
 
   const tl = gsap.timeline({
@@ -533,6 +695,7 @@ function work() {
   const sync = () => {
     const idx = Math.min(steps, Math.max(0, Math.round(st.progress * steps)));
     videos.forEach((v, i) => {
+      if (!v) return;
       if (inView && i === idx) { if (v.paused) v.play().catch(() => {}); }
       else if (!v.paused) v.pause();
     });
@@ -621,10 +784,21 @@ function reel() {
   const section = document.getElementById("reel");
   const frame = document.querySelector("[data-reel-frame]");
   if (!section || !frame) return;
-  const vid = frame.querySelector("video");
+  let vid = frame.querySelector("video");
   const ui = frame.querySelector(".reel__ui");
   const words = section.querySelectorAll(".reel__word");
   const sound = section.querySelector("[data-reel-sound]");
+  if (LITE) {
+    const img = document.createElement("img");
+    img.className = "reel__video";
+    img.src = vid.getAttribute("poster");
+    img.alt = "";
+    img.loading = "lazy";
+    img.decoding = "async";
+    vid.replaceWith(img);
+    vid = img;
+    sound.remove();
+  }
 
   // Tamanho do cartão inicial: o mesmo --card-w do CSS, em 16:9, centralizado
   const cardInset = () => {
@@ -665,45 +839,46 @@ function reel() {
       .fromTo(ui, { opacity: 1 }, { opacity: 0, ease: "power1.in", duration: 0.5, immediateRender: false }, 0);
   }
 
+  if (LITE) return;
   // Toca só enquanto está na tela
   ScrollTrigger.create({
     trigger: section, start: "top 80%", end: "bottom top",
     onToggle: (self) => { if (self.isActive) vid.play().catch(() => {}); else vid.pause(); },
   });
 
+  // O botão de som tem rótulo próprio (ligado/desligado): troca aqui, depois do changeLang
+  langHooks.push(() => {
+    sound.dataset.btn = vid.muted ? t("reel.on") : t("reel.off");
+    buildButton(sound);
+  });
   sound.addEventListener("click", () => {
     vid.muted = !vid.muted;
     if (!vid.muted) { vid.volume = 0.8; vid.play().catch(() => {}); }
-    sound.dataset.btn = vid.muted ? "Ativar som" : "Desativar som";
+    sound.dataset.btn = vid.muted ? t("reel.on") : t("reel.off");
     sound.setAttribute("aria-pressed", String(!vid.muted));
     buildButton(sound);
   });
 }
 
 /* ---------- Serviços ---------- */
-const SERVICES = [
-  { title: "Sites Sob Medida", items: ["Sites para empresas", "Páginas de venda", "Visual único para a sua marca", "Perfeito em qualquer tela"] },
-  { title: "Movimento & Animação", items: ["Animações ao rolar a página", "Navegação suave", "Detalhes que reagem ao toque", "Vídeos dentro do site"] },
-  { title: "Experiências em 3D", items: ["Produtos em 3D no site", "Cenas que seguem o mouse", "Objetos para girar e explorar", "Leve e rápido de abrir"] },
-  { title: "Lojas & Apps", items: ["Lojas virtuais completas", "Pagamento via Pix", "Aplicativos para celular", "Painel para gerenciar o negócio"] },
-  { title: "IA no seu Negócio", items: ["Atendimento automático 24h", "Menos tarefas repetitivas", "Assistentes que respondem clientes", "Ideias testadas em poucos dias"] },
-];
 const arrowSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>';
 
 function services() {
   const row = document.querySelector("[data-services]");
   if (!row) return;
-  row.innerHTML = SERVICES.map((s, i) => `
+  const body = (s) => `<h3>${s.title}</h3>
+        <ul>${s.items.map((it) => `<li><span>${it}</span></li>`).join("")}</ul>`;
+  row.innerHTML = I18N.data.services.map((s, i) => `
     <a class="service${i === 0 ? " is-active" : ""}" href="#contato" data-open-contact>
       <div class="service__fill"></div>
       <div class="service__top"><div class="service__arrow"><span>${arrowSvg}</span><span>${arrowSvg}</span></div></div>
       <div class="service__body">
-        <h3>${s.title}</h3>
-        <ul>${s.items.map((it) => `<li><span>${it}</span></li>`).join("")}</ul>
+        ${body(s)}
       </div>
     </a>`).join("");
 
   const cards = [...row.children];
+  langHooks.push(() => cards.forEach((c, i) => swapText(c.querySelector(".service__body"), body(I18N.data.services[i]))));
   const fills = cards.map((c) => c.querySelector(".service__fill"));
   const vals = cards.map((_, i) => ({ value: i === 0 ? 100 : -40 }));
   fills.forEach((f, i) => f.style.setProperty("--reveal", `${vals[i].value}%`));
@@ -855,14 +1030,20 @@ function indexList() {
   PROJECTS.forEach((p, i) => {
     if (i !== 0) html.push('<div class="index__sep"></div>');
     html.push(`
-      <a class="index__row" href="${linkOf(p)}" target="_blank" rel="noopener" aria-label="${p.name}, ${p.kind} (abre em nova aba)">
+      <a class="index__row" href="${linkOf(p)}" target="_blank" rel="noopener" aria-label="${p.name}, ${I18N.kind(p)} (${t("newtab")})">
         <div class="reveal" data-reveal="lines"><h3>${p.name}</h3></div>
-        <div class="reveal" data-reveal="lines"><p>${p.kind}</p></div>
+        <div class="reveal" data-reveal="lines"><p>${I18N.kind(p)}</p></div>
       </a>`);
   });
   html.push('<div class="index__sep"></div>');
   rowsHost.innerHTML = html.join("");
   rowsHost.querySelectorAll(".index__sep").forEach(stringLine);
+  langHooks.push(() => rowsHost.querySelectorAll(".index__row").forEach((row, i) => {
+    const p = PROJECTS[i];
+    row.setAttribute("aria-label", `${p.name}, ${I18N.kind(p)} (${t("newtab")})`);
+    const kind = row.querySelectorAll(".reveal")[1];
+    relang(kind, () => { kind.querySelector("p").textContent = I18N.kind(p); });
+  }));
 
   frame.innerHTML = PROJECTS.map((p) => `<div class="index__pic"><img src="${poster(p)}" alt="" width="600" height="400" loading="lazy" /></div>`).join("");
   const pics = [...frame.children];
@@ -951,43 +1132,43 @@ function stack() {
         opacity: 0,
         x: desk ? gsap.utils.random(-180, 180) : 0,
         y: gsap.utils.random(-180, 180),
-        filter: "blur(10px)",
+        filter: LITE ? "none" : "blur(10px)",
         z: desk ? gsap.utils.random(-2200, -1600) : gsap.utils.random(-550, -400),
       });
-      tl.to(el, { z: 0, opacity: 1, filter: "blur(0px)", duration: inDur }, at)
-        .to(el, { filter: "blur(10px)", opacity: 0, z: desk ? gsap.utils.random(1400, 1800) : gsap.utils.random(500, 700), duration: outDur }, at + inDur);
+      // No celular o desfoque animado pesa demais: os logos só aparecem e somem
+      tl.to(el, { z: 0, opacity: 1, filter: LITE ? "none" : "blur(0px)", duration: inDur }, at)
+        .to(el, { filter: LITE ? "none" : "blur(10px)", opacity: 0, z: desk ? gsap.utils.random(1400, 1800) : gsap.utils.random(500, 700), duration: outDur }, at + inDur);
     });
   });
 }
 
 /* ---------- Processo (carrossel) ---------- */
-const STEPS = [
-  { name: "Conversa", role: "Etapa 01 · Primeiro contato", quote: "Entendo o seu negócio, o seu público e o que o site precisa resolver. Saímos dessa conversa com objetivo, prazo e o que vai ser feito bem definidos." },
-  { name: "Direção", role: "Etapa 02 · Proposta visual", quote: "Reúno referências e mostro uma primeira proposta: letras, cores e o estilo de movimento que combina com a sua marca." },
-  { name: "Construção", role: "Etapa 03 · Criação do site", quote: "Construo o site com animações, efeitos em 3D quando fazem sentido e versão para celular. Você acompanha cada avanço por um link." },
-  { name: "Ajustes", role: "Etapa 04 · Revisão", quote: "Revisamos juntos cada parte. Ajusto textos e detalhes até o resultado ficar do jeito que você imaginou." },
-  { name: "No ar", role: "Etapa 05 · Lançamento", quote: "Coloco o site no ar com o seu endereço, pronto para ser encontrado no Google e abrir rápido. Depois do lançamento, continuo por perto para o que precisar." },
-];
 function processCarousel() {
   const slide = document.querySelector("[data-process-slide]");
   const avatarsHost = document.querySelector("[data-process-avatars]");
   if (!slide) return;
-  const n = STEPS.length;
+  const steps = () => I18N.data.steps;
+  const n = steps().length;
   let cur = 0;
   let busy = false;
 
-  avatarsHost.innerHTML = STEPS.map((s, i) => `
-    <button class="avatar" type="button" aria-label="Ver etapa ${s.name}">
+  avatarsHost.innerHTML = steps().map((s, i) => `
+    <button class="avatar" type="button" aria-label="${t("process.see", { name: s.name })}">
       <span class="avatar__face"><img src="${poster(PROJECTS[i % PROJECTS.length])}" alt="" width="120" height="120" /></span>
     </button>`).join("");
   const avatars = [...avatarsHost.children];
 
-  const render = () => {
-    const s = STEPS[cur];
-    slide.innerHTML = `
+  const html = () => {
+    const s = steps()[cur];
+    return `
       <div class="process__who"><p class="process__name">${s.name}</p><p class="process__role">${s.role}</p></div>
       <p class="process__quote">“${s.quote}”</p>`;
   };
+  const render = () => { slide.innerHTML = html(); };
+  langHooks.push(() => {
+    swapText(slide, html());
+    avatars.forEach((a, i) => a.setAttribute("aria-label", t("process.see", { name: steps()[i].name })));
+  });
   const layoutAvatars = (animate) => {
     const before = avatars.map((a) => a.getBoundingClientRect());
     const half = Math.floor(n / 2);
@@ -1059,26 +1240,20 @@ function processCarousel() {
 }
 
 /* ---------- Perguntas frequentes ---------- */
-const FAQ = [
-  ["Quem é o Gabriel e que tipo de projeto você aceita?", "Sou desenvolvedor e crio sites para empresas, páginas de venda, lojas virtuais e aplicativos. Meu foco é entregar algo bonito, rápido e fácil de usar, que ajude o seu negócio a vender e a ser lembrado."],
-  ["Quanto tempo leva para o meu site ficar pronto?", "Uma página de venda costuma ficar pronta em poucos dias. Sites com várias páginas, efeitos em 3D ou loja virtual levam de duas a quatro semanas, dependendo do tamanho do projeto, do material que você já tem e das rodadas de ajuste."],
-  ["Você trabalha com o design ou o conteúdo que eu já tenho?", "Sim. Se você já tem logo, cores, textos, fotos ou até um visual pronto, eu aproveito tudo e dou vida a isso no site. Se ainda não tem, criamos juntos do zero. Nos dois casos, o resultado final vai ter a cara da sua marca."],
-  ["O site vai abrir rápido e funcionar bem no celular?", "Sim. Cada site é pensado primeiro para o celular, com imagens e vídeos leves para abrir rápido mesmo com internet mais lenta. As animações são ajustadas para rodar suaves em qualquer aparelho."],
-  ["Como funciona o orçamento?", "Começa com uma conversa rápida para eu entender o que você precisa. Depois envio uma proposta com valor, prazo e tudo o que está incluso, sem surpresas no meio do caminho."],
-];
 function faq() {
   const host = document.querySelector("[data-faq]");
   if (!host) return;
   // Dados estruturados (FAQPage) gerados da mesma lista exibida, para nunca divergirem do texto na tela
   const ld = document.createElement("script");
   ld.type = "application/ld+json";
-  ld.textContent = JSON.stringify({
+  const schema = () => JSON.stringify({
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: FAQ.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+    mainEntity: I18N.data.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
   });
+  ld.textContent = schema();
   document.head.appendChild(ld);
-  host.innerHTML = FAQ.map(([q, a], i) => `
+  host.innerHTML = I18N.data.faq.map(([q, a], i) => `
     <div class="faq__item">
       <div class="faq__q" role="button" tabindex="0" aria-expanded="false" aria-controls="faq-a-${i}" id="faq-q-${i}">
         <div class="faq__head">
@@ -1092,6 +1267,15 @@ function faq() {
     </div>`).join("");
   const items = [...host.querySelectorAll(".faq__q")];
   const heights = items.map(() => 0);
+  langHooks.push(() => {
+    ld.textContent = schema();
+    items.forEach((q, i) => {
+      const [qq, aa] = I18N.data.faq[i];
+      swapText(q.querySelector(".faq__head > span"), qq, { asText: true });
+      swapText(q.querySelector(".faq__a-inner p"), aa, { asText: true });
+      heights[i] = 0; // a resposta mudou de tamanho: a próxima abertura mede de novo
+    });
+  });
   let open = -1;
   const dur = reduced ? 0 : 0.5;
   const setOpen = (i, on) => {
@@ -1144,15 +1328,17 @@ function footer() {
 }
 
 /* ---------- Canais de contato ---------- */
+langHooks.push(() => contactLinks());
 function contactLinks() {
   const links = {
-    whatsapp: WHATSAPP && `https://wa.me/${WHATSAPP.replace(/\D/g, "")}?text=${encodeURIComponent("Olá, Gabriel! Vim pelo seu portfólio.")}`,
+    whatsapp: WHATSAPP && `https://wa.me/${WHATSAPP.replace(/\D/g, "")}?text=${encodeURIComponent(t("wa.text"))}`,
     instagram: INSTAGRAM && `https://instagram.com/${INSTAGRAM.replace(/^@/, "")}`,
   };
   document.querySelectorAll("[data-contact-link]").forEach((li) => {
     const url = links[li.dataset.contactLink];
     if (!url) { li.remove(); return; }
-    li.querySelector("a").href = url;
+    const a = li.querySelector("a");
+    if (a) a.href = url;
   });
 }
 
@@ -1214,10 +1400,10 @@ function contactModal() {
     const sends = readSends();
     const last = sends[sends.length - 1] || 0;
     const wait = Math.ceil((last + LIMIT.gap - Date.now()) / 1000);
-    if (wait > 0) return `Aguarde ${wait} segundo${wait > 1 ? "s" : ""} para enviar outra mensagem.`;
+    if (wait > 0) return t("form.wait", wait);
     if (sends.length >= LIMIT.perHour) {
       const mins = Math.ceil((sends[0] + 60 * 60 * 1000 - Date.now()) / 60000);
-      return `Você já enviou ${LIMIT.perHour} mensagens. Tente de novo em ${mins} minuto${mins > 1 ? "s" : ""}.`;
+      return t("form.limit", LIMIT.perHour, mins);
     }
     return "";
   };
@@ -1239,7 +1425,7 @@ function contactModal() {
     fields.forEach((el) => el.classList.toggle("is-invalid", bad.includes(el)));
     if (bad.length) {
       const onlyEmail = bad.length === 1 && bad[0].name === "email" && bad[0].value.trim();
-      setStatus(onlyEmail ? "Confira o seu e-mail." : "Preencha todos os campos para enviar.", "error");
+      setStatus(onlyEmail ? t("form.emailBad") : t("form.fill"), "error");
       bad[0].focus();
       return;
     }
@@ -1247,12 +1433,12 @@ function contactModal() {
     // Robôs preenchem o campo invisível ou enviam na hora: finge que deu certo e não envia nada
     if (f.get("botcheck") || Date.now() - openedAt < LIMIT.minFill) {
       form.reset();
-      setStatus("Mensagem enviada! Respondo em breve.", "ok");
+      setStatus(t("form.ok"), "ok");
       return;
     }
     const blocked = blockedReason();
     if (blocked) { setStatus(blocked, "error"); return; }
-    setButton("Enviando...", true);
+    setButton(t("form.sending"), true);
     setStatus("");
     try {
       const res = await fetch("https://api.web3forms.com/submit", {
@@ -1261,7 +1447,7 @@ function contactModal() {
         body: JSON.stringify({
           access_key: WEB3FORMS_KEY,
           from_name: "Portfólio Gabriel Novaes",
-          subject: `Portfólio: ${f.get("subject")}`,
+          subject: `Portfólio${I18N.lang === "pt" ? "" : ` [${I18N.lang.toUpperCase()}]`}: ${f.get("subject")}`,
           name: f.get("name"),
           email: f.get("email"),
           message: f.get("message"),
@@ -1272,12 +1458,12 @@ function contactModal() {
       if (!res.ok || !data.success) throw new Error(data.message || res.status);
       saveSend();
       form.reset();
-      setStatus("Mensagem enviada! Respondo em breve.", "ok");
-      setButton("Enviar", false);
+      setStatus(t("form.ok"), "ok");
+      setButton(t("form.send"), false);
       setTimeout(() => { if (!modal.hidden) close(); setStatus(""); }, 3000);
     } catch {
-      setStatus("Não foi possível enviar agora. Tente de novo em instantes.", "error");
-      setButton("Enviar", false);
+      setStatus(t("form.err"), "error");
+      setButton(t("form.send"), false);
     }
   });
 }
@@ -1309,6 +1495,7 @@ function anchorLinks() {
 }
 
 /* ---------- Início ---------- */
+langSwitch();
 anchorLinks();
 work();
 why();
@@ -1328,8 +1515,7 @@ heroVideo();
 const fontsReady = document.fonts ? Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1500))]) : Promise.resolve();
 fontsReady.then(() => {
   // Sempre começa do topo, mesmo se o navegador tentar restaurar a rolagem
-  window.scrollTo(0, 0);
-  lenis.scrollTo(0, { immediate: true, force: true });
+  toTop();
   document.querySelectorAll(".reveal:not([data-manual])").forEach(runReveal);
   ScrollTrigger.refresh();
   if (reduced) {
@@ -1343,4 +1529,4 @@ fontsReady.then(() => {
 });
 // A tela de entrada começa na hora e espera as fontes em paralelo. Na revelação mede tudo de novo:
 // se a janela mudou de tamanho durante o carregamento, o hero já aparece com a altura certa.
-if (!reduced) loader(fontsReady, (fromLoader) => { ScrollTrigger.refresh(); intro(fromLoader); });
+if (!reduced) loader(fontsReady, (fromLoader) => { toTop(); ScrollTrigger.refresh(); intro(fromLoader); });

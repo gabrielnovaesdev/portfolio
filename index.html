@@ -32,16 +32,16 @@
   <!-- Fonte carregada sem bloquear a primeira pintura; só os pesos usados (400 e 500) -->
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&display=swap" /></noscript>
-  <link rel="preload" as="image" href="assets/gabriel-hero.webp" fetchpriority="high" />
-  <link rel="stylesheet" href="styles.css?v=25" />
+  <link rel="preload" as="image" href="assets/hero-loop-poster.webp" fetchpriority="high" />
+  <link rel="stylesheet" href="styles.css?v=34" />
 </head>
 <body>
   <!-- Tela de entrada: "Bem-vindo ao portfólio de" e o nome, que voa até o logo do cabeçalho
-       enquanto a cortina sobe em arco e revela o hero. Uma vez por sessão; main.js controla tudo. -->
+       enquanto a cortina sobe em arco e revela o hero. Aparece a cada carregamento; main.js controla tudo. -->
   <div class="loader" id="loader" aria-hidden="true">
     <div class="loader__bg"></div>
     <div class="loader__inner">
-      <p class="loader__hello" data-loader-hello>Bem-vindo ao portfólio de</p>
+      <p class="loader__hello" data-loader-hello data-i18n="loader.hello">Bem-vindo ao portfólio de</p>
       <p class="loader__name" data-loader-name><span>GABRIEL</span><span class="logo__muted">NOVAES</span></p>
       <div class="loader__bar"><i data-loader-bar></i></div>
     </div>
@@ -57,21 +57,36 @@
   </svg>
 
   <!-- Atalho de teclado: aparece só ao receber foco (Tab) -->
-  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+  <a class="skip" href="#conteudo" data-i18n="skip">Pular para o conteúdo</a>
 
   <!-- Cabeçalho fixo: some ao rolar para baixo, volta ao rolar para cima -->
   <header class="header" id="header">
-    <a class="logo" href="#hero" aria-label="Gabriel Novaes, início">
+    <a class="logo" href="#hero" aria-label="Gabriel Novaes, início" data-i18n-attr="aria-label: logo.home">
       <span>GABRIEL</span> <span class="logo__muted">NOVAES</span>
     </a>
-    <!-- Menu no lugar esperado (lei de Jakob): só no computador; no celular fica o botão de contato -->
-    <nav class="nav" aria-label="Seções">
-      <a class="nav__link" href="#projetos">Projetos</a>
-      <a class="nav__link" href="#servicos">Serviços</a>
-      <a class="nav__link" href="#processo">Processo</a>
-      <a class="nav__link" href="#faq">Dúvidas</a>
+    <!-- Menu no lugar esperado (lei de Jakob): só no computador -->
+    <nav class="nav" aria-label="Seções" data-i18n-attr="aria-label: nav.label">
+      <a class="nav__link" href="#projetos" data-i18n="nav.projects">Projetos</a>
+      <a class="nav__link" href="#servicos" data-i18n="nav.services">Serviços</a>
+      <a class="nav__link" href="#processo" data-i18n="nav.process">Processo</a>
+      <a class="nav__link" href="#faq" data-i18n="nav.faq">Dúvidas</a>
     </nav>
-    <a class="btn btn--glass" href="#contato" data-open-contact data-btn="Fale comigo"></a>
+    <!-- Idioma: bandeira redonda + sigla. A pílula branca desliza até a opção escolhida (main.js) -->
+    <div class="lang" role="group" aria-label="Idioma" data-i18n-attr="aria-label: lang.label">
+      <span class="lang__pill" aria-hidden="true"></span>
+      <button type="button" data-lang="pt" lang="pt-BR" aria-label="Português">
+        <span class="lang__flag" aria-hidden="true"><svg viewBox="4 0 20 20" preserveAspectRatio="xMidYMid slice"><rect x="0" width="12" height="20" fill="#046A38"/><rect x="12" width="18" height="20" fill="#DA291C"/><circle cx="12" cy="10" r="4.4" fill="none" stroke="#FFE900" stroke-width="1.5"/><path d="M10.1 7.4h3.8v3.6a1.9 1.9 0 0 1-3.8 0z" fill="#fff" stroke="#DA291C" stroke-width=".7"/><circle cx="12" cy="9.6" r=".7" fill="#0b3b8c"/></svg></span>
+        <span class="lang__code">PT</span>
+      </button>
+      <button type="button" data-lang="en" lang="en" aria-label="English">
+        <span class="lang__flag" aria-hidden="true"><svg viewBox="0 0 20 20" preserveAspectRatio="xMidYMid slice"><rect width="20" height="20" fill="#fff"/><g fill="#B31942"><rect y="0" width="20" height="1.54"/><rect y="3.08" width="20" height="1.54"/><rect y="6.15" width="20" height="1.54"/><rect y="9.23" width="20" height="1.54"/><rect y="12.31" width="20" height="1.54"/><rect y="15.38" width="20" height="1.54"/><rect y="18.46" width="20" height="1.54"/></g><rect width="10" height="10.77" fill="#0A3161"/><g fill="#fff"><circle cx="2" cy="2" r=".6"/><circle cx="5" cy="2" r=".6"/><circle cx="8" cy="2" r=".6"/><circle cx="3.5" cy="4.3" r=".6"/><circle cx="6.5" cy="4.3" r=".6"/><circle cx="2" cy="6.6" r=".6"/><circle cx="5" cy="6.6" r=".6"/><circle cx="8" cy="6.6" r=".6"/><circle cx="3.5" cy="8.9" r=".6"/><circle cx="6.5" cy="8.9" r=".6"/></g></svg></span>
+        <span class="lang__code">EN</span>
+      </button>
+      <button type="button" data-lang="es" lang="es" aria-label="Español">
+        <span class="lang__flag" aria-hidden="true"><svg viewBox="0 0 20 20" preserveAspectRatio="xMidYMid slice"><rect width="20" height="20" fill="#AA151B"/><rect y="5" width="20" height="10" fill="#F1BF00"/><rect x="4.2" y="7.3" width="3.4" height="4.6" rx="1.2" fill="#AA151B"/><rect x="4.9" y="8.1" width="2" height="1.4" fill="#F1BF00"/></svg></span>
+        <span class="lang__code">ES</span>
+      </button>
+    </div>
   </header>
 
   <main id="conteudo" tabindex="-1">
@@ -81,23 +96,23 @@
         <div class="hero__copy">
           <div class="hero__title-wrap">
             <div class="reveal" data-reveal="chars" data-stagger="0.015" data-manual="title">
-              <h1 class="hero__title">Sites que ninguém esquece</h1>
+              <h1 class="hero__title" data-i18n="hero.title">Transformo ideias<br /> em experiências<br /> inesquecíveis</h1>
             </div>
             <!-- Uma única ação principal, perto do título (lei de Fitts) -->
             <div class="hero__cta" data-hero-cta>
-              <a class="btn" href="#contato" data-open-contact data-btn="Pedir orçamento"></a>
+              <a class="btn" href="#contato" data-open-contact data-btn="Pedir orçamento" data-i18n-btn="hero.cta"></a>
             </div>
           </div>
           <div class="hero__side">
-            <div class="reveal" data-reveal="lines" data-manual="side"><p>Design, código<br />e movimento</p></div>
+            <div class="reveal" data-reveal="lines" data-manual="side"><p data-i18n="hero.side1">Design, código<br />e movimento</p></div>
             <div class="reveal" data-reveal="lines" data-manual="side"><p>Developer<br />&amp; AI</p></div>
           </div>
         </div>
         <div class="hero__portrait">
           <div class="hero__portrait-inner">
-            <img src="assets/gabriel-hero.webp" alt="Gabriel Novaes" width="1145" height="1374" draggable="false" fetchpriority="high" />
+            <img class="hero__photo" src="assets/hero-loop-poster.webp" alt="Gabriel Novaes" width="1120" height="880" draggable="false" fetchpriority="high" />
             <!-- Loop com fundo transparente (VP9 + alfa). main.js só liga onde o navegador suporta; senão fica a foto -->
-            <video class="hero__video" muted playsinline preload="none" poster="assets/hero-loop-poster.webp" aria-hidden="true" data-src="assets/hero-loop.webm"></video>
+            <video class="hero__video" muted playsinline preload="none" aria-hidden="true" data-src="assets/hero-loop.webm"></video>
           </div>
         </div>
       </div>
@@ -114,7 +129,7 @@
       <div class="work__arc circle-clip"></div>
       <div class="work__sticky">
         <div class="reveal" data-reveal="chars" data-stagger="0.015">
-          <h2 class="work__title">Projetos selecionados</h2>
+          <h2 class="work__title" data-i18n="work.title">Projetos selecionados</h2>
         </div>
         <div class="work__body">
           <div class="work__list">
@@ -134,34 +149,34 @@
       <div class="why__fill" aria-hidden="true"></div>
       <div class="why__head">
         <div class="reveal" data-reveal="chars" data-stagger="0.015">
-          <h2 class="h-section">Por que trabalhar comigo?</h2>
+          <h2 class="h-section" data-i18n="why.title">Por que trabalhar comigo?</h2>
         </div>
         <div class="reveal" data-reveal="lines">
-          <p class="why__sub">Da primeira conversa ao site no ar, sem enrolação</p>
+          <p class="why__sub" data-i18n="why.sub">Da primeira conversa ao site no ar, sem enrolação</p>
         </div>
       </div>
       <div class="why__grid">
         <article class="why__card">
           <div>
             <svg class="why__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09"/><path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05"/></svg>
-            <h3>Entrega rápida</h3>
-            <p>Sites e páginas de venda no ar em poucos dias, com um link para você acompanhar cada etapa desde o primeiro rascunho.</p>
+            <h3 data-i18n="why.1t">Entrega rápida</h3>
+            <p data-i18n="why.1p">Sites e páginas de venda no ar em poucos dias, com um link para você acompanhar cada etapa desde o primeiro rascunho.</p>
           </div>
           <div class="why__line"><span></span></div>
         </article>
         <article class="why__card">
           <div>
             <svg class="why__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg>
-            <h3>Detalhe e movimento</h3>
-            <p>Animações suaves e efeitos que deixam o site vivo e marcante, sem deixá-lo lento para abrir no computador ou no celular.</p>
+            <h3 data-i18n="why.2t">Detalhe e movimento</h3>
+            <p data-i18n="why.2p">Animações suaves e efeitos que deixam o site vivo e marcante, sem deixá-lo lento para abrir no computador ou no celular.</p>
           </div>
           <div class="why__line"><span></span></div>
         </article>
         <article class="why__card">
           <div>
             <svg class="why__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
-            <h3>Tecnologia a seu favor</h3>
-            <p>Uso inteligência artificial para trabalhar mais rápido e com menos erros, e posso colocar atendimento automático no seu site quando isso trouxer resultado.</p>
+            <h3 data-i18n="why.3t">Tecnologia a seu favor</h3>
+            <p data-i18n="why.3p">Uso inteligência artificial para trabalhar mais rápido e com menos erros, e posso colocar atendimento automático no seu site quando isso trouxer resultado.</p>
           </div>
           <div class="why__line"><span></span></div>
         </article>
@@ -169,11 +184,11 @@
     </section>
 
     <!-- Reel: o vídeo começa como um cartão entre as palavras e se abre até ocupar a tela -->
-    <section class="reel" id="reel" aria-label="Reel de Gabriel Novaes">
+    <section class="reel" id="reel" aria-label="Reel de Gabriel Novaes" data-i18n-attr="aria-label: reel.aria">
       <div class="reel__sticky">
-        <h2 class="sr-only">Por trás do código</h2>
-        <div class="reel__word reel__word--l" aria-hidden="true"><div class="reveal" data-reveal="chars" data-stagger="0.015"><p>Por trás</p></div></div>
-        <div class="reel__word reel__word--r" aria-hidden="true"><div class="reveal" data-reveal="chars" data-stagger="0.015"><p>do código</p></div></div>
+        <h2 class="sr-only" data-i18n="reel.h">Por trás do código</h2>
+        <div class="reel__word reel__word--l" aria-hidden="true"><div class="reveal" data-reveal="chars" data-stagger="0.015"><p data-i18n="reel.l">Por trás</p></div></div>
+        <div class="reel__word reel__word--r" aria-hidden="true"><div class="reveal" data-reveal="chars" data-stagger="0.015"><p data-i18n="reel.r">do código</p></div></div>
         <div class="reel__frame" data-reel-frame>
           <video class="reel__video" src="assets/reel-720.mp4" poster="assets/reel.jpg" muted loop playsinline preload="metadata"></video>
           <div class="reel__shade" aria-hidden="true"></div>
@@ -182,7 +197,7 @@
               <p class="reel__name">Gabriel Novaes</p>
               <p class="reel__tag">Reel 2026 · Developer &amp; AI</p>
             </div>
-            <button class="btn" type="button" data-btn="Ativar som" data-reel-sound aria-pressed="false"></button>
+            <button class="btn" type="button" data-btn="Ativar som" data-i18n-btn="reel.on" data-reel-sound aria-pressed="false"></button>
           </div>
         </div>
       </div>
@@ -192,11 +207,11 @@
     <section class="services" id="servicos">
       <div class="services__intro">
         <div class="reveal" data-reveal="chars" data-stagger="0.015">
-          <h2 class="h-section h-section--tight">Sites que falam<br />com seu público</h2>
+          <h2 class="h-section h-section--tight" data-i18n="services.title">Sites que falam<br />com seu público</h2>
         </div>
         <div class="services__text">
           <div class="reveal" data-reveal="lines">
-            <p>Meu trabalho é transformar a sua ideia em um site que traz resultado. Seja o site da sua empresa, uma loja virtual, uma experiência em 3D ou um aplicativo, cuido de tudo para que cada detalhe faça sentido para quem visita.</p>
+            <p data-i18n="services.text">Meu trabalho é transformar a sua ideia em um site que traz resultado. Seja o site da sua empresa, uma loja virtual, uma experiência em 3D ou um aplicativo, cuido de tudo para que cada detalhe faça sentido para quem visita.</p>
           </div>
         </div>
       </div>
@@ -212,7 +227,7 @@
       <div class="index__inner">
         <div class="index__list-col">
           <div class="reveal" data-reveal="chars" data-stagger="0.015">
-            <h2 class="h-section h-section--tight index__title">Tudo no ar,<br />pronto para ver</h2>
+            <h2 class="h-section h-section--tight index__title" data-i18n="index.title">Tudo no ar,<br />pronto para ver</h2>
           </div>
           <div class="index__rows" data-index></div>
         </div>
@@ -227,7 +242,7 @@
       <div class="stack__title">
         <div class="stack__title-inner">
           <div class="reveal" data-reveal="chars" data-stagger="0.015">
-            <h2>Ferramentas que uso para tirar ideias do papel.</h2>
+            <h2 data-i18n="stack.title">Ferramentas que uso para tirar ideias do papel.</h2>
           </div>
         </div>
       </div>
@@ -241,7 +256,7 @@
       <div class="process__wrap">
         <div class="process__head">
           <div class="reveal" data-reveal="chars" data-stagger="0.015">
-            <h2 class="process__title">Do primeiro papo ao site no ar, passo a passo</h2>
+            <h2 class="process__title" data-i18n="process.title">Do primeiro papo ao site no ar, passo a passo</h2>
           </div>
         </div>
         <div class="process__stage">
@@ -250,11 +265,11 @@
           </div>
           <div class="process__avatars fade-up" data-process-avatars></div>
           <div class="process__nav fade-up">
-            <button class="round-btn" type="button" data-process-prev aria-label="Etapa anterior">
+            <button class="round-btn" type="button" data-process-prev aria-label="Etapa anterior" data-i18n-attr="aria-label: process.prev">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <span class="round-btn__fill"></span>
             </button>
-            <button class="round-btn" type="button" data-process-next aria-label="Próxima etapa">
+            <button class="round-btn" type="button" data-process-next aria-label="Próxima etapa" data-i18n-attr="aria-label: process.next">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <span class="round-btn__fill"></span>
             </button>
@@ -266,7 +281,7 @@
     <!-- Perguntas frequentes -->
     <section class="faq" id="faq">
       <div class="reveal" data-reveal="chars" data-stagger="0.015">
-        <h2 class="faq__title">Perguntas frequentes</h2>
+        <h2 class="faq__title" data-i18n="faq.title">Perguntas frequentes</h2>
       </div>
       <div class="faq__list" data-faq></div>
     </section>
@@ -286,10 +301,10 @@
     <div class="footer__inner">
       <div class="footer__card" data-footer-card>
         <div class="footer__top">
-          <a class="logo logo--big" href="#hero" aria-label="Gabriel Novaes, voltar ao início"><span>GABRIEL</span> <span class="logo__muted">NOVAES</span></a>
+          <a class="logo logo--big" href="#hero" aria-label="Gabriel Novaes, voltar ao início" data-i18n-attr="aria-label: logo.top"><span>GABRIEL</span> <span class="logo__muted">NOVAES</span></a>
           <div class="footer__cta">
-            <p>Pronto para tirar sua ideia do papel?</p>
-            <a class="btn btn--light" href="#contato" data-open-contact data-btn="Fale comigo"></a>
+            <p data-i18n="footer.cta">Pronto para tirar sua ideia do papel?</p>
+            <a class="btn btn--light" href="#contato" data-open-contact data-btn="Fale comigo" data-i18n-btn="contact"></a>
           </div>
         </div>
         <div class="footer__bottom">
@@ -317,7 +332,7 @@
       </div>
       <div class="footer__legal">
         <p>Copyright © Gabriel Novaes 2026</p>
-        <a class="footer__privacy" href="privacidade.html">Política de privacidade</a>
+        <a class="footer__privacy" href="privacidade.html" data-i18n="privacy">Política de privacidade</a>
       </div>
     </div>
   </footer>
@@ -325,16 +340,16 @@
   <!-- Modal de contato -->
   <div class="modal" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title" hidden>
     <div class="modal__overlay" data-close-contact></div>
-    <div class="modal__panel">
-      <button class="modal__close" type="button" data-close-contact aria-label="Fechar"><span></span><span></span></button>
+    <div class="modal__panel" data-lenis-prevent>
+      <button class="modal__close" type="button" data-close-contact aria-label="Fechar" data-i18n-attr="aria-label: modal.close"><span></span><span></span></button>
       <div class="modal__grid">
         <div class="modal__intro">
           <div>
-            <h2 class="modal__title" id="contact-title">Fale comigo</h2>
-            <p class="modal__sub">Conte sua ideia em poucas linhas. Respondo em até um dia útil.</p>
+            <h2 class="modal__title" id="contact-title" data-i18n="contact">Fale comigo</h2>
+            <p class="modal__sub" data-i18n="modal.sub">Conte sua ideia em poucas linhas. Respondo em até um dia útil.</p>
           </div>
           <div class="modal__channels">
-            <p class="modal__channels-label">Prefere falar direto?</p>
+            <p class="modal__channels-label" data-i18n="modal.channels">Prefere falar direto?</p>
             <ul>
               <li data-contact-link="whatsapp"><a class="channel" target="_blank" rel="noopener">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1.65-4.65A9 9 0 1 1 7.6 19.4z"/><path transform="translate(7.4 7.4) scale(.38)" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -350,18 +365,18 @@
         </div>
         <form class="contact-form" data-contact-form novalidate>
           <div class="contact-form__row">
-            <label><span>Seu nome*</span><input name="name" type="text" required autocomplete="name" placeholder="Seu nome*" /></label>
-            <label><span>E-mail*</span><input name="email" type="email" required autocomplete="email" placeholder="E-mail*" /></label>
+            <label><span data-i18n="form.name">Seu nome*</span><input name="name" type="text" required autocomplete="name" placeholder="Seu nome*" data-i18n-attr="placeholder: form.name" /></label>
+            <label><span data-i18n="form.email">E-mail*</span><input name="email" type="email" required autocomplete="email" inputmode="email" placeholder="E-mail*" data-i18n-attr="placeholder: form.email" /></label>
           </div>
-          <label><span>Assunto*</span><input name="subject" type="text" required placeholder="Assunto*" /></label>
-          <label class="contact-form__grow"><span>Mensagem*</span><textarea name="message" required placeholder="Mensagem*"></textarea></label>
+          <label><span data-i18n="form.subject">Assunto*</span><input name="subject" type="text" required placeholder="Assunto*" data-i18n-attr="placeholder: form.subject" /></label>
+          <label class="contact-form__grow"><span data-i18n="form.message">Mensagem*</span><textarea name="message" required placeholder="Mensagem*" data-i18n-attr="placeholder: form.message"></textarea></label>
           <!-- Armadilha para robôs: invisível para pessoas, o Web3Forms descarta o envio se vier marcada -->
           <input class="contact-form__trap" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" />
           <div class="contact-form__foot">
-            <button class="btn btn--accent" type="submit" data-btn="Enviar"></button>
+            <button class="btn btn--accent" type="submit" data-btn="Enviar" data-i18n-btn="form.send"></button>
             <p class="contact-form__status" data-contact-status role="status" aria-live="polite"></p>
           </div>
-          <p class="contact-form__note">Seus dados servem só para responder à sua mensagem. <a href="privacidade.html">Política de privacidade</a></p>
+          <p class="contact-form__note"><span data-i18n="form.note">Seus dados servem só para responder à sua mensagem.</span> <a href="privacidade.html" data-i18n="privacy">Política de privacidade</a></p>
         </form>
       </div>
     </div>
@@ -372,6 +387,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <script src="projects.js?v=4"></script>
-  <script src="main.js?v=26"></script>
+  <script src="i18n.js?v=2"></script>
+  <script src="main.js?v=33"></script>
 </body>
 </html>

@@ -37,7 +37,9 @@ Meu portfólio em uma página, em preto, branco e vermelho. O topo traz um **ví
 
 Feito com HTML, CSS e JavaScript puros, sem build e sem framework. **GSAP** (ScrollTrigger e SplitText) cuida das animações, e o **Lenis** da rolagem suave.
 
-O site respeita a preferência de sistema por menos movimento (`prefers-reduced-motion`): as animações viram transições simples e o topo mostra a foto em vez do vídeo.
+O site está em **português, inglês e espanhol**: o idioma vem do navegador, de `?lang=pt|en|es` na URL ou da escolha no cabeçalho, que fica salva.
+
+No celular e no tablet o site não roda vídeo nenhum: o topo mostra a foto e os projetos e o reel mostram os pôsteres. Ele também respeita a preferência de sistema por menos movimento (`prefers-reduced-motion`): as animações viram transições simples e o topo mostra a foto.
 
 ## ◆ Projetos
 
@@ -58,7 +60,7 @@ Os projetos aparecem na ordem de `projects.js`. Cada um tem uma prévia em víde
 
 | Seção | O que acontece |
 | --- | --- |
-| Entrada | "Bem-vindo ao portfólio de" e o nome, que voa até o logo enquanto uma cortina em arco revela o site. Uma vez por sessão |
+| Entrada | "Bem-vindo ao portfólio de" e o nome, que voa até o logo enquanto uma cortina em arco revela o site, sempre que a página é carregada |
 | Topo | Vídeo em loop que segue o mouse; passar o mouse no rosto imprime pontos brancos e vermelhos (halftone). Ao rolar, encolhe e revela a parede de projetos |
 | Projetos selecionados | Arco branco sobe, a lista avança com a rolagem e cada vídeo entra por cima do anterior |
 | Por que trabalhar comigo | Arco preto cobre os projetos; linhas vermelhas acendem ao passar o mouse |
@@ -99,6 +101,8 @@ O formulário de contato envia as mensagens pelo [Web3Forms](https://web3forms.c
 }
 ```
 
+3. Em `i18n.js`, acrescente o tipo do projeto em inglês e espanhol em `kinds` (pela `slug`). Sem isso, aparece o tipo em português.
+
 A lista e a altura da seção de projetos se ajustam sozinhas à quantidade de itens.
 
 ## ◆ Estrutura
@@ -107,10 +111,11 @@ A lista e a altura da seção de projetos se ajustam sozinhas à quantidade de i
 ├── index.html       Estrutura de todas as seções
 ├── styles.css       Cores, tipografia, layout e responsivo
 ├── main.js          Animações, rolagem, vídeos, carrossel, FAQ e contato
+├── i18n.js          Textos em português, inglês e espanhol e o seletor de idioma
 ├── projects.js      Lista de projetos exibidos
 ├── privacidade.html Política de privacidade (formulário de contato e serviços de terceiros)
 └── assets/
-    ├── gabriel-hero.webp           Foto do topo (Safari, celular, menos movimento)
+    ├── hero-loop-poster.webp       Primeiro quadro do vídeo: foto do topo (Safari, celular, menos movimento)
     ├── hero-loop.webm              Vídeo do topo com fundo transparente (VP9 + alfa)
     ├── reel-720.mp4                Reel da seção "Por trás do código"
     ├── projects/                   Prévia em vídeo e capa de cada projeto
