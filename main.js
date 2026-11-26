@@ -197,13 +197,13 @@ void main(){
   const mk = document.createElement("canvas");
   mk.width = 224; mk.height = 176;
   const mx = mk.getContext("2d");
-  let pointer = null, cell = 7;
+  let pointer = null, cell = 5;
   const resize = () => {
     const r = cv.getBoundingClientRect();
     const d = Math.min(window.devicePixelRatio || 1, 1.5);
     cv.width = Math.max(1, Math.round(r.width / (gsap.getProperty(".hero__stage", "scale") || 1) * d));
     cv.height = Math.max(1, Math.round(cv.width * 880 / 1120));
-    cell = 7 * d;
+    cell = 5 * d;
     gl.viewport(0, 0, cv.width, cv.height);
   };
   window.addEventListener("resize", resize);
