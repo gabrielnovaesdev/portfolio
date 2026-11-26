@@ -79,7 +79,7 @@ python -m http.server 5500   # http://localhost:5500
 
 GSAP, ScrollTrigger, SplitText e Lenis vêm de CDN, então é preciso estar online.
 
-Para o formulário de contato abrir o seu e-mail, preencha `CONTACT_EMAIL` no começo do `main.js`. Enquanto estiver vazio, ele abre o GitHub.
+O formulário de contato envia as mensagens pelo [Web3Forms](https://web3forms.com). Coloque a sua chave de acesso em `WEB3FORMS_KEY`, no começo do `main.js`, e elas chegam no e-mail cadastrado na chave. Enquanto ela estiver vazia, o formulário abre o GitHub.
 
 ## ◆ Adicionar um projeto
 

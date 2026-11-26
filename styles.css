@@ -152,12 +152,16 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   align-items: center;
   padding: 0 4vw;
   overflow: hidden;
-  background-color: #180d08;
+  /* Mesma técnica da referência: camadas de luz radial sobre uma base vertical escura.
+     Ponto quente (vermelho claro) embaixo à esquerda, corpo carmim à esquerda do retrato,
+     um brilho grafite neutro no alto à direita e a base fechando no preto da página. */
+  background-color: #0d0809;
   background-image:
-    radial-gradient(65% 55% at 92% 6%, #4a4a4a 0%, rgba(74,74,74,0) 65%),
-    radial-gradient(55% 50% at 4% 86%, rgba(224,20,30,0.38) 0%, rgba(224,20,30,0) 65%),
-    radial-gradient(75% 80% at 48% 42%, #262626 0%, rgba(38,38,38,0) 70%),
-    linear-gradient(180deg, #333333 0%, #242424 28%, #1a1a1a 46%, #111111 68%, #0a0a0a 88%, #070707 100%);
+    radial-gradient(55% 75% at 0% 92%, rgba(255,64,52,0.95) 0%, rgba(255,64,52,0.4) 35%, rgba(255,64,52,0) 70%),
+    radial-gradient(75% 100% at 30% 62%, rgba(190,16,26,0.95) 0%, rgba(160,14,22,0.55) 38%, rgba(120,10,16,0) 72%),
+    radial-gradient(60% 55% at 94% 4%, rgba(78,70,70,0.7) 0%, rgba(78,70,70,0) 65%),
+    linear-gradient(90deg, rgba(90,8,13,0.6) 0%, rgba(60,8,11,0.3) 40%, rgba(20,8,9,0) 70%),
+    linear-gradient(180deg, #1f1314 0%, #180e10 30%, #110a0b 55%, #0b0808 80%, #070707 100%);
 }
 .hero__copy { width: 100%; height: fit-content; display: flex; justify-content: space-between; }
 .hero__title-wrap { width: 45%; line-height: 7.5rem; }
@@ -179,7 +183,10 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   left: 50%;
   width: 180%;
   height: 121%;
-  transform: translateX(-49.5%);
+  transform: translateX(-46.5%);
+  /* Um pouco menor, encolhendo a partir da base para o tronco continuar saindo pela borda */
+  scale: 0.88;
+  transform-origin: 50% 100%;
   opacity: 0;
   --reveal: -40%;
   -webkit-mask-image: linear-gradient(to top left, black var(--reveal), transparent calc(var(--reveal) + 25%));
@@ -853,6 +860,11 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
 .contact-form textarea:focus { border-color: var(--red); }
 .contact-form ::placeholder { color: rgba(255, 255, 255, 0.45); }
 .contact-form .btn { margin-top: 0.5rem; }
+.contact-form .btn:disabled { opacity: 0.6; pointer-events: none; }
+.contact-form__trap { display: none; }
+.contact-form__status { min-height: 1.4em; font-size: 0.95rem; color: rgba(255, 255, 255, 0.7); }
+.contact-form__status[data-kind="ok"] { color: #fff; }
+.contact-form__status[data-kind="error"] { color: var(--red); }
 
 /* ===== Tablet (até 1025px) ===== */
 @media (max-width: 1025px) {
@@ -869,7 +881,7 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   .hero__title-wrap { width: 62%; }
   .hero__title { font-size: 12vw; }
   .hero__side { width: 40%; font-size: 3.5vw; text-align: start; flex-direction: column-reverse; gap: 5rem; }
-  .hero__portrait { width: 100%; transform: translateX(-40%); }
+  .hero__portrait { width: 100%; transform: translateX(-40%); scale: 1; }
   .hero__portrait img { -webkit-mask-image: none; mask-image: none; }
   .hero__tile { height: 45vw; }
 
@@ -963,7 +975,7 @@ h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em
   .hero__title-wrap { width: 100%; }
   .hero__title { font-size: 15vw; }
   .hero__side { font-size: 4.5vw; gap: 7vw; padding: 0; }
-  .hero__portrait { width: 160%; height: auto; top: auto; bottom: -30%; transform: translateX(-40%); }
+  .hero__portrait { width: 160%; height: auto; top: auto; bottom: -30%; transform: translateX(-40%); scale: 1; }
   .hero__tile { height: 55vw; }
 
   .work { --row-h: min(8vw, calc(38vh / var(--rows, 6))); }

@@ -5,7 +5,7 @@ window.PROJECTS = [
   {
     slug: "hubclass",
     name: "HubClass",
-    kind: "Landing page · Educação",
+    kind: "Página de vendas · Educação",
     description: "Landing da Black Friday da Hub Academy, a plataforma de cursos do mercado mobile, com vídeos da marca e chamadas diretas para a compra.",
     stack: ["Vite", "GSAP", "ScrollTrigger"],
     live: "https://hubclass.vercel.app/",
@@ -23,7 +23,7 @@ window.PROJECTS = [
   {
     slug: "pizzaria",
     name: "Pizzaria Cinthya",
-    kind: "Landing page · Restaurante",
+    kind: "Site · Restaurante",
     description: "Landing do Restaurante e Pizzaria Cinthya, rodízio de massas desde 1990 em Nova Iguaçu, com a história da família e avaliações reais de clientes.",
     stack: ["HTML", "CSS", "JavaScript"],
     live: "https://pizzaria-cinthya.vercel.app/",
@@ -32,7 +32,7 @@ window.PROJECTS = [
   {
     slug: "bmw",
     name: "BMW M3",
-    kind: "Landing page · Automotivo",
+    kind: "Página de produto · Automotivo",
     description: "Uma volta pela BMW M3 Competition guiada pela rolagem: o vídeo gira o carro, abre a porta e mostra cada detalhe com a ficha oficial.",
     stack: ["GSAP", "ScrollTrigger", "Vídeo H.264"],
     live: "https://gabrielnovaesdev.github.io/BMW-Landingpage/",
@@ -41,7 +41,7 @@ window.PROJECTS = [
   {
     slug: "monolito",
     name: "Monólito",
-    kind: "Site institucional · 3D",
+    kind: "Site institucional · Arquitetura",
     description: "Site de um estúdio de arquitetura com a cena 3D modelada no Blender e renderizada ao vivo no navegador.",
     stack: ["three.js", "GSAP", "Blender"],
     live: "https://monolito-three.vercel.app",
@@ -50,7 +50,7 @@ window.PROJECTS = [
   {
     slug: "novaestore",
     name: "NovaeStore",
-    kind: "E-commerce",
+    kind: "Loja virtual · Games",
     description: "Loja virtual de games e ativações digitais com catálogo, carrinho e checkout via Pix.",
     stack: ["React", "TypeScript", "Supabase", "Tailwind"],
     live: "https://gabrielnovaesdev.github.io/NovaeStore/",
@@ -59,7 +59,7 @@ window.PROJECTS = [
   {
     slug: "orbita",
     name: "Órbita",
-    kind: "Vitrine de produto",
+    kind: "Vitrine de produto · Tecnologia",
     description: "Vitrine da linha iPhone 17 que apresenta cada aparelho em movimento, do jeito que a Apple faz.",
     stack: ["GSAP", "Lenis", "Vídeo WebM"],
     live: "https://orbita-eta-three.vercel.app/",
@@ -68,7 +68,7 @@ window.PROJECTS = [
   {
     slug: "nebula",
     name: "Nébula",
-    kind: "Estúdio digital · WebGL",
+    kind: "Estúdio digital · Interativo",
     description: "Estúdio fictício de experiências digitais com um orbe 3D interativo, sem framework: só HTML, CSS e JavaScript.",
     stack: ["three.js", "GSAP", "Lenis"],
     live: "https://nebulaproject-nu.vercel.app",

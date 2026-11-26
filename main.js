@@ -1,8 +1,9 @@
 /* Portfólio — Gabriel Novaes
    GSAP + ScrollTrigger + SplitText cuidam das animações, Lenis da rolagem suave. */
 
-// E-mail que recebe o formulário de contato. Vazio: o formulário abre o GitHub.
-const CONTACT_EMAIL = "";
+// Chave do Web3Forms (web3forms.com): as mensagens do formulário chegam no e-mail cadastrado nela.
+// A chave é pública por natureza e não expõe o e-mail. Vazia: o formulário abre o GitHub.
+const WEB3FORMS_KEY = "8cb06e2a-4368-4c33-b000-097a60227387";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -447,11 +448,11 @@ function reel() {
 
 /* ---------- Serviços ---------- */
 const SERVICES = [
-  { title: "Web Sob Medida", items: ["Sites institucionais", "Landing pages", "HTML, CSS e JavaScript", "React e TypeScript"] },
-  { title: "Motion & Animação", items: ["GSAP e ScrollTrigger", "Rolagem suave com Lenis", "Micro-interações", "Vídeo na web"] },
-  { title: "3D no Navegador", items: ["three.js e WebGL", "Cenas modeladas no Blender", "Objetos interativos", "Performance em 60 fps"] },
-  { title: "Lojas & Apps", items: ["Lojas com Supabase", "Checkout via Pix", "React Native e Expo", "Painéis e dashboards"] },
-  { title: "IA Aplicada", items: ["Integração com LLMs", "Automação de tarefas", "Agentes e assistentes", "Protótipos rápidos"] },
+  { title: "Sites Sob Medida", items: ["Sites para empresas", "Páginas de venda", "Visual único para a sua marca", "Perfeito em qualquer tela"] },
+  { title: "Movimento & Animação", items: ["Animações ao rolar a página", "Navegação suave", "Detalhes que reagem ao toque", "Vídeos dentro do site"] },
+  { title: "Experiências em 3D", items: ["Produtos em 3D no site", "Cenas que seguem o mouse", "Objetos para girar e explorar", "Leve e rápido de abrir"] },
+  { title: "Lojas & Apps", items: ["Lojas virtuais completas", "Pagamento via Pix", "Aplicativos para celular", "Painel para gerenciar o negócio"] },
+  { title: "IA no seu Negócio", items: ["Atendimento automático 24h", "Menos tarefas repetitivas", "Assistentes que respondem clientes", "Ideias testadas em poucos dias"] },
 ];
 const arrowSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>';
 
@@ -622,7 +623,7 @@ function indexList() {
     html.push(`
       <a class="index__row" href="${linkOf(p)}" target="_blank" rel="noopener">
         <div class="reveal" data-reveal="lines"><h3>${p.name}</h3></div>
-        <div class="reveal" data-reveal="lines"><p>${p.kind.replace(/ · /g, " · ")} — ${p.stack.join(", ")}</p></div>
+        <div class="reveal" data-reveal="lines"><p>${p.kind}</p></div>
       </a>`);
   });
   html.push('<div class="index__sep"></div>');
@@ -727,11 +728,11 @@ function stack() {
 
 /* ---------- Processo (carrossel) ---------- */
 const STEPS = [
-  { name: "Conversa", role: "Etapa 01 · Briefing", quote: "Entendo o seu negócio, o público e o que o site precisa resolver. Saio dessa conversa com objetivo, prazo e escopo definidos." },
-  { name: "Direção", role: "Etapa 02 · Referências e layout", quote: "Monto referências e uma primeira direção visual: tipografia, cores, ritmo e o tipo de movimento que combina com a sua marca." },
-  { name: "Construção", role: "Etapa 03 · Código e animação", quote: "Desenvolvo o site em código, com animações, 3D quando faz sentido e versão para celular. Você acompanha tudo num link de prévia." },
-  { name: "Ajustes", role: "Etapa 04 · Revisão", quote: "Revisamos juntos cada seção. Ajusto textos, detalhes de movimento e performance até o resultado ficar do jeito certo." },
-  { name: "No ar", role: "Etapa 05 · Lançamento", quote: "Publico o site com domínio, SEO básico e boa nota de performance. Depois do lançamento continuo por perto para evoluções." },
+  { name: "Conversa", role: "Etapa 01 · Primeiro contato", quote: "Entendo o seu negócio, o seu público e o que o site precisa resolver. Saímos dessa conversa com objetivo, prazo e o que vai ser feito bem definidos." },
+  { name: "Direção", role: "Etapa 02 · Proposta visual", quote: "Reúno referências e mostro uma primeira proposta: letras, cores e o estilo de movimento que combina com a sua marca." },
+  { name: "Construção", role: "Etapa 03 · Criação do site", quote: "Construo o site com animações, efeitos em 3D quando fazem sentido e versão para celular. Você acompanha cada avanço por um link." },
+  { name: "Ajustes", role: "Etapa 04 · Revisão", quote: "Revisamos juntos cada parte. Ajusto textos e detalhes até o resultado ficar do jeito que você imaginou." },
+  { name: "No ar", role: "Etapa 05 · Lançamento", quote: "Coloco o site no ar com o seu endereço, pronto para ser encontrado no Google e abrir rápido. Depois do lançamento, continuo por perto para o que precisar." },
 ];
 function processCarousel() {
   const slide = document.querySelector("[data-process-slide]");
@@ -825,11 +826,11 @@ function processCarousel() {
 
 /* ---------- Perguntas frequentes ---------- */
 const FAQ = [
-  ["Quem é o Gabriel e que tipo de projeto você aceita?", "Sou desenvolvedor front-end e trabalho com IA no dia a dia. Faço sites institucionais, landing pages, lojas virtuais, experiências 3D no navegador e apps em React Native, sempre com atenção a movimento, performance e acabamento."],
-  ["Quanto tempo leva para o meu site ficar pronto?", "Uma landing page costuma ficar pronta em poucos dias. Sites com várias páginas, 3D ou loja virtual levam de duas a quatro semanas, dependendo do escopo, do conteúdo pronto e das rodadas de ajuste."],
-  ["Você trabalha com o design ou o conteúdo que eu já tenho?", "Sim. Posso partir de um layout pronto no Figma, de uma marca já existente ou começar do zero com você. O importante é o site final conversar com a sua identidade."],
-  ["Que cuidados você toma com performance e acessibilidade?", "Uso HTML semântico, imagens e vídeos otimizados, carregamento sob demanda e respeito a preferência de menos movimento do sistema. As animações são pensadas para rodar lisas também no celular."],
-  ["Como você usa inteligência artificial nos projetos?", "Uso IA para prototipar, revisar código e acelerar tarefas repetitivas, o que deixa mais tempo para o que importa: o detalhe. E, quando faz sentido para o seu negócio, integro IA no próprio produto, como assistentes e automações."],
+  ["Quem é o Gabriel e que tipo de projeto você aceita?", "Sou desenvolvedor e crio sites para empresas, páginas de venda, lojas virtuais e aplicativos. Meu foco é entregar algo bonito, rápido e fácil de usar, que ajude o seu negócio a vender e a ser lembrado."],
+  ["Quanto tempo leva para o meu site ficar pronto?", "Uma página de venda costuma ficar pronta em poucos dias. Sites com várias páginas, efeitos em 3D ou loja virtual levam de duas a quatro semanas, dependendo do tamanho do projeto, do material que você já tem e das rodadas de ajuste."],
+  ["Você trabalha com o design ou o conteúdo que eu já tenho?", "Sim. Se você já tem logo, cores, textos, fotos ou até um visual pronto, eu aproveito tudo e dou vida a isso no site. Se ainda não tem, criamos juntos do zero. Nos dois casos, o resultado final vai ter a cara da sua marca."],
+  ["O site vai abrir rápido e funcionar bem no celular?", "Sim. Cada site é pensado primeiro para o celular, com imagens e vídeos leves para abrir rápido mesmo com internet mais lenta. As animações são ajustadas para rodar suaves em qualquer aparelho."],
+  ["Como funciona o orçamento?", "Começa com uma conversa rápida para eu entender o que você precisa. Depois envio uma proposta com valor, prazo e tudo o que está incluso, sem surpresas no meio do caminho."],
 ];
 function faq() {
   const host = document.querySelector("[data-faq]");
@@ -905,8 +906,10 @@ function contactModal() {
   const panel = modal.querySelector(".modal__panel");
   const overlay = modal.querySelector(".modal__overlay");
   let lastFocus = null;
+  let openedAt = 0;
   const open = (e) => {
     e.preventDefault();
+    openedAt = Date.now();
     lastFocus = document.activeElement;
     modal.hidden = false;
     lenis.stop();
@@ -924,16 +927,89 @@ function contactModal() {
   document.querySelectorAll("[data-open-contact]").forEach((el) => el.addEventListener("click", open));
   modal.querySelectorAll("[data-close-contact]").forEach((el) => el.addEventListener("click", close));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) close(); });
-  modal.querySelector("[data-contact-form]").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const f = new FormData(e.currentTarget);
-    if (CONTACT_EMAIL) {
-      const body = `${f.get("message")}\n\n— ${f.get("name")} (${f.get("email")})`;
-      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(f.get("subject"))}&body=${encodeURIComponent(body)}`;
-    } else {
-      window.open("https://github.com/gabrielnovaesdev", "_blank", "noopener");
+  const form = modal.querySelector("[data-contact-form]");
+  const submit = form.querySelector('button[type="submit"]');
+  const status = form.querySelector("[data-contact-status]");
+  const setButton = (label, busy) => {
+    submit.dataset.btn = label;
+    submit.disabled = busy;
+    buildButton(submit);
+  };
+  const setStatus = (text, kind) => {
+    status.textContent = text;
+    status.dataset.kind = kind || "";
+  };
+  // Limite de envios neste navegador, somado ao antispam do Web3Forms:
+  // no mínimo 60 s entre mensagens, no máximo 3 por hora, e nada enviado em menos de 3 s após abrir o formulário.
+  const LIMIT = { gap: 60 * 1000, perHour: 3, minFill: 3000, key: "contact-sends" };
+  let memSends = [];
+  const readSends = () => {
+    let list = memSends;
+    try { list = JSON.parse(localStorage.getItem(LIMIT.key) || "[]"); } catch {}
+    const hourAgo = Date.now() - 60 * 60 * 1000;
+    return Array.isArray(list) ? list.filter((t) => typeof t === "number" && t > hourAgo) : [];
+  };
+  const saveSend = () => {
+    const list = [...readSends(), Date.now()];
+    memSends = list;
+    try { localStorage.setItem(LIMIT.key, JSON.stringify(list)); } catch {}
+  };
+  const blockedReason = () => {
+    const sends = readSends();
+    const last = sends[sends.length - 1] || 0;
+    const wait = Math.ceil((last + LIMIT.gap - Date.now()) / 1000);
+    if (wait > 0) return `Aguarde ${wait} segundo${wait > 1 ? "s" : ""} para enviar outra mensagem.`;
+    if (sends.length >= LIMIT.perHour) {
+      const mins = Math.ceil((sends[0] + 60 * 60 * 1000 - Date.now()) / 60000);
+      return `Você já enviou ${LIMIT.perHour} mensagens. Tente de novo em ${mins} minuto${mins > 1 ? "s" : ""}.`;
     }
-    close();
+    return "";
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (submit.disabled) return;
+    if (!WEB3FORMS_KEY) {
+      window.open("https://github.com/gabrielnovaesdev", "_blank", "noopener");
+      close();
+      return;
+    }
+    const f = new FormData(form);
+    // Robôs preenchem o campo invisível ou enviam na hora: finge que deu certo e não envia nada
+    if (f.get("botcheck") || Date.now() - openedAt < LIMIT.minFill) {
+      form.reset();
+      setStatus("Mensagem enviada! Respondo em breve.", "ok");
+      return;
+    }
+    const blocked = blockedReason();
+    if (blocked) { setStatus(blocked, "error"); return; }
+    setButton("Enviando...", true);
+    setStatus("");
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          from_name: "Portfólio Gabriel Novaes",
+          subject: `Portfólio: ${f.get("subject")}`,
+          name: f.get("name"),
+          email: f.get("email"),
+          message: f.get("message"),
+          botcheck: f.get("botcheck") ? true : "",
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) throw new Error(data.message || res.status);
+      saveSend();
+      form.reset();
+      setStatus("Mensagem enviada! Respondo em breve.", "ok");
+      setButton("Enviar", false);
+      setTimeout(() => { if (!modal.hidden) close(); setStatus(""); }, 3000);
+    } catch {
+      setStatus("Não foi possível enviar agora. Tente de novo em instantes.", "error");
+      setButton("Enviar", false);
+    }
   });
 }
 
