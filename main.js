@@ -188,7 +188,7 @@ function changeLang(next) {
     if (wrap) relang(wrap, () => { el.innerHTML = html; });
     else swapText(el, html);
   });
-  document.querySelectorAll("[data-i18n-btn]:not([data-reel-sound])").forEach((el) => {
+  document.querySelectorAll("[data-i18n-btn]").forEach((el) => {
     el.dataset.btn = t(el.dataset.i18nBtn);
     if (reduced || !inView(el)) { buildButton(el); return; }
     gsap.to(el.querySelectorAll(".btn__text > span > span"), {
@@ -799,9 +799,7 @@ function reel() {
   const frame = document.querySelector("[data-reel-frame]");
   if (!section || !frame) return;
   let vid = frame.querySelector("video");
-  const ui = frame.querySelector(".reel__ui");
   const words = section.querySelectorAll(".reel__word");
-  const sound = section.querySelector("[data-reel-sound]");
   if (LITE) {
     const img = document.createElement("img");
     img.className = "reel__video";
@@ -811,7 +809,11 @@ function reel() {
     img.decoding = "async";
     vid.replaceWith(img);
     vid = img;
-    sound.remove();
+  } else {
+    // Sem som em nenhuma hipótese
+    vid.muted = true;
+    vid.volume = 0;
+    vid.addEventListener("volumechange", () => { if (!vid.muted || vid.volume) { vid.muted = true; vid.volume = 0; } });
   }
 
   // Tamanho do cartão inicial: o mesmo --card-w do CSS, em 16:9, centralizado
@@ -826,7 +828,6 @@ function reel() {
   if (reduced) {
     gsap.set(frame, { clipPath: "inset(0px 0px 0px 0px round 0px)" });
     gsap.set(words, { opacity: 0 });
-    gsap.set(ui, { opacity: 1 });
   } else {
     gsap.set(frame, { clipPath: cardInset() });
     const tl = gsap.timeline({
@@ -836,8 +837,7 @@ function reel() {
       .fromTo(vid, { scale: 1.25 }, { scale: 1, ease: "power2.inOut", duration: 0.7 }, 0)
       .to(words[0], { xPercent: -60, opacity: 0, ease: "power2.in", duration: 0.55 }, 0)
       .to(words[1], { xPercent: 60, opacity: 0, ease: "power2.in", duration: 0.55 }, 0)
-      .fromTo(ui, { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: "power2.out", duration: 0.2 }, 0.72)
-      .to({}, { duration: 0.08 });
+      .to({}, { duration: 0.3 });
 
     // Saída: o vídeo volta a ser um cartão e escurece enquanto sobe, em vez de sair cortado
     const exitInset = () => {
@@ -849,8 +849,7 @@ function reel() {
       scrollTrigger: { trigger: section, start: "bottom bottom", end: "bottom 15%", scrub: true, invalidateOnRefresh: true },
     });
     exit.fromTo(frame, { clipPath: "inset(0px 0px 0px 0px round 0px)" }, { clipPath: exitInset, ease: "power1.inOut", immediateRender: false }, 0)
-      .fromTo(vid, { filter: "brightness(1)" }, { filter: "brightness(0.35)", ease: "none", immediateRender: false }, 0)
-      .fromTo(ui, { opacity: 1 }, { opacity: 0, ease: "power1.in", duration: 0.5, immediateRender: false }, 0);
+      .fromTo(vid, { filter: "brightness(1)" }, { filter: "brightness(0.35)", ease: "none", immediateRender: false }, 0);
   }
 
   if (LITE) return;
@@ -860,18 +859,6 @@ function reel() {
     onToggle: (self) => { if (self.isActive) vid.play().catch(() => {}); else vid.pause(); },
   });
 
-  // O botão de som tem rótulo próprio (ligado/desligado): troca aqui, depois do changeLang
-  langHooks.push(() => {
-    sound.dataset.btn = vid.muted ? t("reel.on") : t("reel.off");
-    buildButton(sound);
-  });
-  sound.addEventListener("click", () => {
-    vid.muted = !vid.muted;
-    if (!vid.muted) { vid.volume = 0.8; vid.play().catch(() => {}); }
-    sound.dataset.btn = vid.muted ? t("reel.on") : t("reel.off");
-    sound.setAttribute("aria-pressed", String(!vid.muted));
-    buildButton(sound);
-  });
 }
 
 /* ---------- Serviços ---------- */

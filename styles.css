@@ -59,7 +59,7 @@ html { overflow-anchor: none; }
 
 /* Títulos: a Host Grotesk tem espaço largo em tamanho grande; o SplitText ainda perde o kerning */
 h1, h2, .footer__cta p, .modal__title, .reel__word { letter-spacing: -0.025em; word-spacing: -0.1em; }
-h3, .process__name, .reel__name { letter-spacing: -0.01em; word-spacing: -0.05em; }
+h3, .process__name { letter-spacing: -0.01em; word-spacing: -0.05em; }
 
 /* Texto revelado letra a letra / linha a linha (main.js aplica o SplitText) */
 .reveal { opacity: 0; }
@@ -556,7 +556,7 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 5.5vw;
+  font-size: 5vw; /* cabe "a la entrega", a mais longa dos três idiomas, ao lado do cartão */
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -571,27 +571,6 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   will-change: clip-path;
 }
 .reel__video { width: 100%; height: 100%; object-fit: cover; transform-origin: center; }
-.reel__shade {
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 45%;
-  background: linear-gradient(to top, rgba(7, 7, 7, 0.85), rgba(7, 7, 7, 0));
-  pointer-events: none;
-}
-.reel__ui {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 0 4vw 3vw;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 2rem;
-  opacity: 0;
-}
-.reel__name { font-size: 2.5vw; line-height: 1.2; }
-.reel__tag { font-size: 1.25vw; line-height: 1.5; color: rgba(255, 255, 255, 0.7); margin-top: 0.4vw; }
 
 /* ===== Serviços ===== */
 .services { position: relative; width: 100vw; height: 275vh; background: #070707; color: #fff; }
@@ -1085,9 +1064,6 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   .reel__word { font-size: 8vw; }
   .reel__word--l { right: auto; left: 5vw; top: calc(50% - 60vw * 9 / 32 - 6vw); text-align: left; }
   .reel__word--r { left: auto; right: 5vw; top: calc(50% + 60vw * 9 / 32 + 6vw); }
-  .reel__ui { padding: 0 5vw 5vw; }
-  .reel__name { font-size: 5vw; }
-  .reel__tag { font-size: 2.5vw; }
 
   .services__intro { width: 85%; padding: 15vw 5vw 0; }
   .services__text { width: 100%; margin-top: 5vw; font-size: 2.5vw; }
@@ -1192,9 +1168,6 @@ html.lg-refract :is(.btn--glass, .social, .channel, .round-btn, .faq__icon, .ser
   .reel__word { font-size: 11vw; }
   .reel__word--l { top: calc(50% - 86vw * 9 / 32 - 9vw); }
   .reel__word--r { top: calc(50% + 86vw * 9 / 32 + 9vw); }
-  .reel__ui { flex-direction: column; align-items: flex-start; gap: 1rem; padding-bottom: 8vw; }
-  .reel__name { font-size: 7vw; }
-  .reel__tag { font-size: 3.8vw; }
 
   .services__intro { width: 100%; }
   .services__text { font-size: 4.5vw; }

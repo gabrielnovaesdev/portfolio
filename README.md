@@ -64,7 +64,7 @@ Os projetos aparecem na ordem de `projects.js`. Cada um tem uma prévia em víde
 | Topo | Vídeo em loop que segue o mouse; passar o mouse no rosto imprime pontos brancos e vermelhos (halftone). Ao rolar, encolhe e revela a parede de projetos |
 | Projetos selecionados | Arco branco sobe, a lista avança com a rolagem e cada vídeo entra por cima do anterior |
 | Por que trabalhar comigo | Arco preto cobre os projetos; linhas vermelhas acendem ao passar o mouse |
-| Por trás do código | O reel começa como um cartão e se abre até ocupar a tela, com botão de som |
+| Do código à entrega | O reel (sem som) começa como um cartão entre as duas frases e se abre até ocupar a tela, sem nada por cima |
 | Serviços | Cartões correm na horizontal; o ativo se enche de branco |
 | Tudo no ar | Lista com prévia flutuante; as linhas vibram como corda e tocam uma nota |
 | Ferramentas | Logos voam em profundidade |
@@ -117,7 +117,7 @@ A lista e a altura da seção de projetos se ajustam sozinhas à quantidade de i
 └── assets/
     ├── hero-loop-poster.webp       Primeiro quadro do vídeo: foto do topo (Safari, celular, menos movimento)
     ├── hero-loop.webm              Vídeo do topo com fundo transparente (VP9 + alfa)
-    ├── reel-720.mp4                Reel da seção "Por trás do código"
+    ├── reel-720.mp4                Reel da seção "Do código à entrega" (sem áudio)
     ├── projects/                   Prévia em vídeo e capa de cada projeto
     └── stack/                      Logos das ferramentas
 ```
